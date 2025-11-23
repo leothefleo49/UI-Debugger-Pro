@@ -13,22 +13,25 @@ UI Debugger Pro is a universal tool designed to help developers find and fix vis
 | **React / Next.js / Vite** | `npm install ui-debugger-pro` | [**Read Guide**](./docs/INSTALL_REACT.md) |
 | **Python (Flask / Django)** | `pip install ui-debugger-pro` | [**Read Guide**](./docs/INSTALL_PYTHON.md) |
 | **HTML / PHP / Ruby** | Add `<script>` tag | [**Read Guide**](./docs/INSTALL_VANILLA.md) |
-| **Any Website (No Code)** | Bookmarklet | [**Get Bookmarklet**](./docs/INSTALL_VANILLA.md#bookmarklet-no-install-required) |
+| **Browser Extension** | Chrome / Edge / Brave | [**Read Guide**](./docs/INSTALL_EXTENSION.md) |
+| **Any Website (No Code)** | Bookmarklet (Drag & Drop) | [**Get Bookmarklet**](./docs/bookmarklet_install.html) |
 
 ---
 
-## ✨ Features
+## ✨ Features (v6.0)
 
 ### 🕵️ Deep Scan Audit
 Automatically detect common UI issues across your entire page:
 - **Overlap Detection**: Finds elements that are accidentally covering each other.
 - **Cutoff Detection**: Identifies content that overflows its container.
 - **Alignment Check**: Detects elements that are *almost* aligned (1-3px off).
-- **Accessibility Check**: Flags low contrast text (New!).
+- **Accessibility Check**: Flags low contrast text.
+- **Broken Link/Image Check**: Finds 404 images and empty links (New!).
 
 ### 🛠️ Visual Tools
 - **Layout Grid**: Visualize the structure of your page with a single click.
 - **Animation Control**: Slow down animations to debug transitions.
+- **Design Mode**: Edit text directly on the page to test copy length (New!).
 - **Global Killers**: Toggle off CSS properties (Outline, Shadow, Border, Background) globally.
 
 ### 📱 Responsive Simulator

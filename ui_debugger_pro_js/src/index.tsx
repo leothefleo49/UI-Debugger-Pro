@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 
-// UI Debugger Pro v5.2
+// UI Debugger Pro v6.0 (V3 Release)
 // Adapted for NPM Package
 
 // --- Types ---
@@ -19,6 +19,7 @@ const SYMPTOMS = [
   { id: 'ghost', label: 'Ghost / Highlights', description: 'Faint white/colored backgrounds appearing on elements.', recommendedToggles: ['background', 'selection'] },
   { id: 'move', label: 'Movement / Size', description: 'Elements grow, shrink, bounce, or shift position.', recommendedToggles: ['transform'] },
   { id: 'overlay', label: 'Overlays / Blockers', description: 'Invisible layers blocking clicks or covering content.', recommendedToggles: ['background', 'backdrop'] },
+  { id: 'text', label: 'Text / Content', description: 'Text is hard to read, overflowing, or wrong font.', recommendedToggles: ['contrast', 'edit'] },
 ];
 
 const THEMES = {
@@ -26,9 +27,10 @@ const THEMES = {
   light: { bg: 'bg-white', text: 'text-slate-800', border: 'border-blue-500', accent: 'blue' },
   hacker: { bg: 'bg-black', text: 'text-green-400', border: 'border-green-500', accent: 'green' },
   cyber: { bg: 'bg-zinc-900', text: 'text-pink-400', border: 'border-yellow-400', accent: 'pink' },
+  dracula: { bg: 'bg-[#282a36]', text: 'text-[#f8f8f2]', border: 'border-[#ff79c6]', accent: 'pink' },
 };
 
-const STORAGE_KEY = 'ui_debugger_pro_config_v5_2';
+const STORAGE_KEY = 'ui_debugger_pro_config_v6_0';
 
 export function UIDebugger() {
   // --- State: Wizard ---
@@ -65,10 +67,17 @@ export function UIDebugger() {
       outline: false, shadow: false, ring: false, border: false,
       selection: false, tap: false, filter: false, backdrop: false,
       transform: false, background: false,
-      layout: false, // New: Layout Grid
-      contrast: false, // New: Contrast Checker
+      layout: false, // Layout Grid
+      contrast: false, // Contrast Checker
+      edit: false, // Design Mode (Edit Text)
+      images: false, // Highlight Images
     };
   });
+
+  // --- Effect: Design Mode ---
+  useEffect(() => {
+    document.designMode = toggles.edit ? 'on' : 'off';
+  }, [toggles.edit]);
 
   // --- State: Animation Speed ---
   const [animationSpeed, setAnimationSpeed] = useState(1); // 1 = Normal, 0.1 = Slow Motion
@@ -297,6 +306,26 @@ export function UIDebugger() {
               issues.push({ type: 'a11y', el, message: `Low contrast detected. Text might be hard to read.` });
            }
         }
+      }
+    });
+
+    // 7. Broken Image Detection
+    const images = Array.from(document.querySelectorAll('img')).filter(img => !img.closest('#ui-debugger-pro-root'));
+    images.forEach(img => {
+      if (img.naturalWidth === 0 && img.src) {
+         issues.push({ type: 'broken-image', el: img, message: `Broken image detected: ${img.src.substring(0, 50)}...` });
+      }
+      if (!img.alt) {
+         issues.push({ type: 'a11y', el: img, message: `Image missing alt text.` });
+      }
+    });
+
+    // 8. Empty Link Detection
+    const links = Array.from(document.querySelectorAll('a')).filter(a => !a.closest('#ui-debugger-pro-root'));
+    links.forEach(a => {
+      const href = a.getAttribute('href');
+      if (!href || href === '#' || href === '') {
+         issues.push({ type: 'broken-link', el: a, message: `Empty or placeholder link detected.` });
       }
     });
 
@@ -962,6 +991,7 @@ export function UIDebugger() {
       
       {/* New Feature Styles */}
       {toggles.layout && <style>{`* { outline: 1px solid rgba(255, 0, 0, 0.2) !important; }`}</style>}
+      {toggles.images && <style>{`img { outline: 5px solid magenta !important; filter: grayscale(100%) !important; }`}</style>}
       {animationSpeed !== 1 && <style>{`* { animation-duration: ${1/animationSpeed}s !important; transition-duration: ${1/animationSpeed}s !important; }`}</style>}
 
       {/* Targeted Style Injection */}
