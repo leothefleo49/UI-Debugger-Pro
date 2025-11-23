@@ -109,6 +109,9 @@ export function UIDebugger() {
   });
   const [sensitivity, setSensitivity] = useState(0.5); // 0 to 1
 
+  // --- State: Auto-Fix History ---
+  const [appliedFixes, setAppliedFixes] = useState([]);
+
   const [isPaused, setIsPaused] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -133,6 +136,63 @@ export function UIDebugger() {
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
   }, [toggles, targetedRules, trackHover, trackClick, trackFocus, trackSelect, showWizard, maxLogs, autoSave, panelSize, panelPosition, theme, ignoredIssues]);
+
+  // --- Auto-Fix Logic ---
+  const applyAutoFix = (issue) => {
+    const { el, type } = issue;
+    let fix = {};
+    let css = '';
+
+    switch (type) {
+      case 'overlap':
+        // Try z-index boost
+        const currentZ = window.getComputedStyle(el).zIndex;
+        const newZ = (parseInt(currentZ) || 0) + 10;
+        el.style.zIndex = newZ;
+        el.style.position = 'relative'; // Ensure z-index works
+        fix = { property: 'z-index', value: newZ, prev: currentZ };
+        css = `z-index: ${newZ}; position: relative;`;
+        break;
+      case 'cutoff':
+        el.style.overflow = 'visible';
+        fix = { property: 'overflow', value: 'visible', prev: el.style.overflow };
+        css = `overflow: visible;`;
+        break;
+      case 'a11y':
+        el.style.color = '#000000';
+        el.style.backgroundColor = '#ffffff';
+        fix = { property: 'color/bg', value: 'high-contrast', prev: 'original' };
+        css = `color: #000000; background-color: #ffffff;`;
+        break;
+      case 'broken-image':
+        el.style.border = '2px dashed red';
+        el.style.minWidth = '50px';
+        el.style.minHeight = '50px';
+        el.style.backgroundColor = '#ffebeb';
+        fix = { property: 'border', value: 'dashed red', prev: '' };
+        css = `border: 2px dashed red; min-width: 50px; min-height: 50px; background-color: #ffebeb;`;
+        break;
+      default:
+        alert('No auto-fix available for this issue type.');
+        return;
+    }
+
+    const fixRecord = {
+      id: Date.now(),
+      issue,
+      css,
+      revert: () => {
+        // Simple revert logic (imperfect but functional for session)
+        if (type === 'overlap') { el.style.zIndex = ''; el.style.position = ''; }
+        if (type === 'cutoff') { el.style.overflow = ''; }
+        if (type === 'a11y') { el.style.color = ''; el.style.backgroundColor = ''; }
+        if (type === 'broken-image') { el.style.border = ''; el.style.minWidth = ''; el.style.minHeight = ''; el.style.backgroundColor = ''; }
+        setAppliedFixes(prev => prev.filter(f => f.id !== fixRecord.id));
+      }
+    };
+
+    setAppliedFixes(prev => [...prev, fixRecord]);
+  };
 
   // --- Server Communication ---
   const saveLogsToServer = useCallback(async (silent = false, data) => {
@@ -852,6 +912,12 @@ export function UIDebugger() {
                           Locate
                         </button>
                         <button 
+                          onClick={() => applyAutoFix(issue)}
+                          className="text-[9px] text-green-400 hover:underline font-bold"
+                        >
+                          Auto-Fix
+                        </button>
+                        <button 
                           onClick={() => {
                             // Add to ignore list (simple signature based on tag + class + issue type)
                             const sig = `${issue.type}|${issue.el.tagName}|${issue.el.className}`;
@@ -868,6 +934,29 @@ export function UIDebugger() {
                   </div>
                 ))}
               </div>
+            )}
+            
+            {/* --- Applied Fixes History --- */}
+            {appliedFixes.length > 0 && (
+               <div className="mt-4 pt-4 border-t border-slate-700">
+                  <h5 className="font-bold text-green-400 mb-2">Applied Fixes (Session)</h5>
+                  <div className="space-y-2">
+                    {appliedFixes.map(fix => (
+                      <div key={fix.id} className="bg-green-900/20 p-2 rounded border border-green-500/30">
+                        <div className="flex justify-between items-start">
+                           <div className="text-[10px] text-green-200">
+                              Fixed <b>{fix.issue.type}</b> on {fix.issue.el.tagName}
+                           </div>
+                           <button onClick={fix.revert} className="text-[9px] text-red-300 hover:text-white bg-red-900/50 px-1 rounded">Revert</button>
+                        </div>
+                        <div className="flex gap-2 mt-1">
+                           <code className="text-[9px] font-mono bg-black/30 px-1 rounded text-slate-300 flex-1 truncate">{fix.css}</code>
+                           <button onClick={() => navigator.clipboard.writeText(fix.css)} className="text-[9px] text-blue-300 hover:text-white">Copy CSS</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+               </div>
             )}
             
             {/* --- Ignored Issues Toggle --- */}
@@ -973,6 +1062,28 @@ export function UIDebugger() {
                 </div>
               </div>
             </div>
+
+            <div className="pt-4 border-t border-slate-700">
+              <h4 className="font-bold text-red-400 mb-2">Danger Zone</h4>
+              <div className="space-y-2">
+                 <button 
+                   onClick={() => {
+                     if(confirm('Are you sure you want to reset all settings?')) resetAll();
+                   }}
+                   className="w-full bg-red-900/50 hover:bg-red-800 text-red-200 py-2 rounded text-xs font-bold border border-red-900"
+                 >
+                   Reset All Settings
+                 </button>
+                 <button 
+                   onClick={() => {
+                     alert('To uninstall completely, run this command in your terminal:\n\nnpx ui-debugger-pro remove\n\nThis will remove the package and clean up your project files.');
+                   }}
+                   className="w-full bg-black hover:bg-slate-900 text-slate-400 py-2 rounded text-xs border border-slate-700"
+                 >
+                   Uninstall / Remove from Project
+                 </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -1026,7 +1137,7 @@ if (typeof window !== 'undefined') {
   // Let's check for a global flag or just do it if it's the top-level script execution.
   // A safer bet: If the user includes the script, they probably want it.
   // But to be safe, let's look for a data attribute on the script tag or a global var.
-  // For now, we'll expose a mount function and try to auto-mount if a specific flag is set OR if we detect we are in a "demo" mode.
+  // For now, we'll expose `window.mountUIDebugger()` and try to auto-mount if a specific flag is set OR if we detect we are in a "demo" mode.
   
   // BETTER APPROACH: Just expose `window.mountUIDebugger()` and let them call it, 
   // OR check for `data-auto-mount` on the script tag.

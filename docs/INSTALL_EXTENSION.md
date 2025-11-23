@@ -1,4 +1,4 @@
-# Installation Guide: Browser Extension (Chrome, Edge, Brave)
+# Installation Guide: Browser Extension (Chrome, Edge, Opera, Brave)
 
 The browser extension is the easiest way to use UI Debugger Pro on any website without modifying code.
 
@@ -9,6 +9,7 @@ The browser extension is the easiest way to use UI Debugger Pro on any website w
 2.  **Open Extensions Page**:
     - Chrome/Brave: Go to `chrome://extensions`
     - Edge: Go to `edge://extensions`
+    - Opera: Go to `opera://extensions`
 3.  **Enable Developer Mode**:
     - Toggle the "Developer mode" switch in the top right corner.
 4.  **Load Unpacked**:
