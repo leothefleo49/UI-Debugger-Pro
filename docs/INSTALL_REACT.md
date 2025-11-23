@@ -1,20 +1,33 @@
 # Installation Guide: React, Next.js, & Vite
 
-## 📦 NPM Installation
+## ⚡ Quick Setup (Recommended)
 
-The easiest way to use UI Debugger Pro in a modern JavaScript environment is via NPM.
+The fastest way to install and configure UI Debugger Pro is using the CLI tool. Run this in your project root:
 
 ```bash
-npm install ui-debugger-pro
-# or
-yarn add ui-debugger-pro
-# or
-pnpm add ui-debugger-pro
+npx ui-debugger-pro init
 ```
+
+This will automatically:
+1. Install the package.
+2. Inject the `<UIDebugger />` component into your `layout.tsx`, `App.tsx`, or `main.tsx`.
 
 ---
 
-## 🚀 Next.js (App Router)
+## 📦 Manual Installation
+
+If you prefer to set it up manually:
+
+1. **Install the package:**
+   ```bash
+   npm install ui-debugger-pro
+   # or
+   yarn add ui-debugger-pro
+   ```
+
+2. **Add to your code:**
+
+### Next.js (App Router)
 
 In `app/layout.tsx`:
 
