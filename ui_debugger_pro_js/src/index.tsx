@@ -721,7 +721,18 @@ export function UIDebugger() {
              <span className="text-[10px] text-slate-500">{history.length} events</span>
           </div>
           <button onClick={() => saveLogsToServer(false)} className="bg-blue-900/80 px-2 py-1 rounded hover:bg-blue-800 text-[10px] text-blue-200">💾 SAVE</button>
-          <button onClick={() => window.open('https://github.com/leothefleo49/ui-debugger-pro', '_blank')} className="bg-slate-700 px-2 py-1 rounded hover:bg-slate-600 text-[10px]">❓ HELP</button>
+          <button 
+            onClick={() => {
+              // Try to open in new tab, if blocked or fails, show alert with URL
+              const url = 'https://github.com/leothefleo49/ui-debugger-pro/blob/master/docs/DETAILED_FEATURES.md';
+              const win = window.open(url, '_blank');
+              if (!win) alert(`Please visit our documentation at:\n\n${url}`);
+            }} 
+            className="bg-slate-700 px-2 py-1 rounded hover:bg-slate-600 text-[10px]"
+            title="Open Documentation"
+          >
+            ❓ HELP
+          </button>
           <button onClick={() => setHeadlessMode(true)} className="bg-slate-700 px-2 py-1 rounded hover:bg-slate-600 text-[10px]">👁️ HIDE UI</button>
           <button 
             onClick={() => setIsPaused(!isPaused)} 

@@ -16,8 +16,8 @@ UI Debugger Pro is a universal tool designed to help developers find and fix vis
 | **Browser Extension** | Chrome / Edge / Opera | [**Read Guide**](./docs/INSTALL_EXTENSION.md) |
 | **Any Website (No Code)** | Bookmarklet (Drag & Drop) | [**Get Bookmarklet**](./docs/bookmarklet_install.html) |
 
-> **Not sure what environment you are using?**
-> If you are unsure, try **Method B (Browser Extension)**. It works on any website regardless of how it was built.
+> **😕 Not sure which one to pick?**
+> [**Click here for a simple guide**](./docs/WHICH_METHOD.md) to find the perfect installation method for your specific project.
 
 ---
 
@@ -45,10 +45,14 @@ Automatically detect common UI issues across your entire page:
 ### 📱 Responsive Simulator
 Test your app on any device size without resizing your browser:
 - **Presets**: Mobile, Tablet, Desktop.
-- **Extreme Ratio Test**: Stress-tests your layout with 20:1 to 1:20 aspect ratios.
+- **Extreme Ratio Test**: Stress-tests your layout with aspect ratios **up to 20:1 and 1:20**.
 
 ### 🐒 Monkey Test
 Automated chaos testing for your UI. Clicks random buttons to find broken paths.
+
+### 🎨 Customization
+- **Themes**: Switch between Dark, Light, Hacker, Cyber, and Dracula themes to match your vibe.
+- **Adjustable**: Configure almost every aspect of the tool to fit your specific workflow.
 
 > **AND MUCH MORE...**
 > [**📖 Read the Detailed Feature Documentation**](./docs/DETAILED_FEATURES.md) for an in-depth explanation of every single feature.
@@ -57,7 +61,7 @@ Automated chaos testing for your UI. Clicks random buttons to find broken paths.
 
 ## 💻 CLI Commands
 
-If you installed via NPM (`npx ui-debugger-pro`), you can use these commands in your terminal:
+These commands work with `npx` (Node.js) but we are working on supporting other package managers.
 
 | Command | Description |
 | :--- | :--- |
@@ -66,7 +70,7 @@ If you installed via NPM (`npx ui-debugger-pro`), you can use these commands in 
 | `npx ui-debugger-pro help` | Opens the documentation in your browser. |
 | `npx ui-debugger-pro commands` | Lists all available commands. |
 
-> *Tip: If you type a wrong command, the CLI will guide you to the help menu.*
+> *Tip: You can also access help directly inside the UI by clicking the **❓ HELP** button.*
 
 ---
 
