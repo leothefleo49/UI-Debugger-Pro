@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ui-debugger-pro"
+version = "5.1.0"
+description = "The ultimate UI debugging tool for web applications."
+readme = "README.md"
+authors = [{name = "User", email = "user@example.com"}]
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Framework :: Django",
+    "Framework :: Flask",
+    "Topic :: Software Development :: Debuggers",
+]
+dependencies = [
+    "click",
+    "flask",  # Optional, but good for the example server
+]
+
+[project.scripts]
+ui-debugger = "ui_debugger_pro.cli:main"
+
+[tool.setuptools.package-data]
+ui_debugger_pro = ["static/*"]
