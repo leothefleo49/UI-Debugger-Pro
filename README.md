@@ -16,11 +16,14 @@ UI Debugger Pro is a universal tool designed to help developers find and fix vis
 | **Browser Extension** | Chrome / Edge / Opera | [**Read Guide**](./docs/INSTALL_EXTENSION.md) |
 | **Any Website (No Code)** | Bookmarklet (Drag & Drop) | [**Get Bookmarklet**](./docs/bookmarklet_install.html) |
 
+> **Not sure what environment you are using?**
+> If you are unsure, try **Method B (Browser Extension)**. It works on any website regardless of how it was built.
+
 ---
 
 ## ✨ Features (v7.0)
 
-### 🤖 Auto-Fix & History (New!)
+### 🤖 Auto-Fix & History
 - **Auto-Fix**: Click a button to automatically apply CSS fixes for overlaps, cutoffs, and contrast issues.
 - **Copy Code**: One-click copy the generated CSS to paste into your codebase.
 - **Session History**: Track every change you make and revert them easily.
@@ -46,6 +49,24 @@ Test your app on any device size without resizing your browser:
 
 ### 🐒 Monkey Test
 Automated chaos testing for your UI. Clicks random buttons to find broken paths.
+
+> **AND MUCH MORE...**
+> [**📖 Read the Detailed Feature Documentation**](./docs/DETAILED_FEATURES.md) for an in-depth explanation of every single feature.
+
+---
+
+## 💻 CLI Commands
+
+If you installed via NPM (`npx ui-debugger-pro`), you can use these commands in your terminal:
+
+| Command | Description |
+| :--- | :--- |
+| `npx ui-debugger-pro init` | Installs and configures the debugger in your project automatically. |
+| `npx ui-debugger-pro remove` | Uninstalls the package and removes the injected code. |
+| `npx ui-debugger-pro help` | Opens the documentation in your browser. |
+| `npx ui-debugger-pro commands` | Lists all available commands. |
+
+> *Tip: If you type a wrong command, the CLI will guide you to the help menu.*
 
 ---
 

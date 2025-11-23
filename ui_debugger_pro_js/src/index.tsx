@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 
-// UI Debugger Pro v6.0 (V3 Release)
+// UI Debugger Pro v7.0 (V3 Release)
 // Adapted for NPM Package
 
 // --- Types ---
@@ -30,7 +30,7 @@ const THEMES = {
   dracula: { bg: 'bg-[#282a36]', text: 'text-[#f8f8f2]', border: 'border-[#ff79c6]', accent: 'pink' },
 };
 
-const STORAGE_KEY = 'ui_debugger_pro_config_v6_0';
+const STORAGE_KEY = 'ui_debugger_pro_config_v7_0';
 
 export function UIDebugger() {
   // --- State: Wizard ---
@@ -650,7 +650,7 @@ export function UIDebugger() {
       <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-sans">
         <div className={`w-full max-w-lg ${currentTheme.bg} border-2 ${currentTheme.border} rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]`}>
           <div className="p-6 border-b border-slate-700">
-            <h2 className={`text-2xl font-bold ${currentTheme.text} mb-2`}>🕵️ Debugger Pro v5.2</h2>
+            <h2 className={`text-2xl font-bold ${currentTheme.text} mb-2`}>🕵️ Debugger Pro v7.0</h2>
             <p className="text-slate-400">What kind of visual bug are you hunting?</p>
           </div>
           <div className="p-6 overflow-y-auto space-y-3">
@@ -721,6 +721,7 @@ export function UIDebugger() {
              <span className="text-[10px] text-slate-500">{history.length} events</span>
           </div>
           <button onClick={() => saveLogsToServer(false)} className="bg-blue-900/80 px-2 py-1 rounded hover:bg-blue-800 text-[10px] text-blue-200">💾 SAVE</button>
+          <button onClick={() => window.open('https://github.com/leothefleo49/ui-debugger-pro', '_blank')} className="bg-slate-700 px-2 py-1 rounded hover:bg-slate-600 text-[10px]">❓ HELP</button>
           <button onClick={() => setHeadlessMode(true)} className="bg-slate-700 px-2 py-1 rounded hover:bg-slate-600 text-[10px]">👁️ HIDE UI</button>
           <button 
             onClick={() => setIsPaused(!isPaused)} 

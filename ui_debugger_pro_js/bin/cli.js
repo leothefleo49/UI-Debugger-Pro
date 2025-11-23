@@ -151,6 +151,22 @@ if (command === 'init') {
 } else if (command === 'remove') {
   remove();
   log('\n👋 UI Debugger Pro has been removed.', 'success');
+} else if (command === 'help') {
+  log('\n📖 Opening documentation...', 'info');
+  const url = 'https://github.com/leothefleo49/ui-debugger-pro';
+  const start = (process.platform == 'darwin'? 'open': process.platform == 'win32'? 'start': 'xdg-open');
+  try {
+    require('child_process').exec(start + ' ' + url);
+  } catch(e) {
+    log(`Could not open browser. Visit: ${url}`, 'info');
+  }
+} else if (command === 'commands') {
+  log('\n🛠️  Available Commands:', 'info');
+  log('   init      - Install and configure the debugger in your project', 'info');
+  log('   remove    - Uninstall and remove all traces from your project', 'info');
+  log('   help      - Open the documentation on GitHub', 'info');
+  log('   commands  - Show this list', 'info');
 } else {
-  log('Usage: npx ui-debugger-pro [init|remove]', 'info');
+  log(`\n❌ Unknown command: "${command || ''}"`, 'error');
+  log('👉 Type "npx ui-debugger-pro commands" to see what you can do.', 'warn');
 }
