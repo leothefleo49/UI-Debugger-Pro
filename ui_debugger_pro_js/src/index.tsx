@@ -65,8 +65,13 @@ export function UIDebugger() {
       outline: false, shadow: false, ring: false, border: false,
       selection: false, tap: false, filter: false, backdrop: false,
       transform: false, background: false,
+      layout: false, // New: Layout Grid
+      contrast: false, // New: Contrast Checker
     };
   });
+
+  // --- State: Animation Speed ---
+  const [animationSpeed, setAnimationSpeed] = useState(1); // 1 = Normal, 0.1 = Slow Motion
 
   // --- State: Targeted Rules ---
   const [targetedRules, setTargetedRules] = useState(() => {
@@ -263,6 +268,35 @@ export function UIDebugger() {
       const maxTop = Math.max(...tops);
       if (maxTop - minTop > 0 && maxTop - minTop <= 3) {
          issues.push({ type: 'alignment', el: parent, message: `Possible misalignment in children of <${parent.tagName}> (Top diff: ${maxTop - minTop}px)` });
+      }
+    });
+
+    // 6. Accessibility: Contrast Check (Simple Heuristic)
+    // We check if text color is too similar to background color
+    // This is a rough approximation as getting true computed background is hard
+    visibleElements.forEach(el => {
+      if (el.innerText && el.innerText.trim().length > 0 && el.children.length === 0) {
+        const style = window.getComputedStyle(el);
+        const color = style.color; // rgb(r, g, b)
+        const bg = style.backgroundColor; // rgb(r, g, b) or rgba(0,0,0,0)
+        
+        if (bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+           // Parse RGB
+           const parseRgb = (str) => {
+             const match = str.match(/\d+/g);
+             return match ? match.map(Number) : [0,0,0];
+           };
+           const [r1, g1, b1] = parseRgb(color);
+           const [r2, g2, b2] = parseRgb(bg);
+           
+           // Simple brightness diff
+           const brightness1 = (r1 * 299 + g1 * 587 + b1 * 114) / 1000;
+           const brightness2 = (r2 * 299 + g2 * 587 + b2 * 114) / 1000;
+           
+           if (Math.abs(brightness1 - brightness2) < 40) { // Threshold for "hard to read"
+              issues.push({ type: 'a11y', el, message: `Low contrast detected. Text might be hard to read.` });
+           }
+        }
       }
     });
 
@@ -615,7 +649,7 @@ export function UIDebugger() {
           <span>Global Killers</span>
           <span className={`text-${currentTheme.accent}-400`}>{Object.values(toggles).filter(Boolean).length} Active</span>
         </div>
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {Object.entries(toggles).map(([key, active]) => (
             <label key={key} className={`flex items-center gap-2 cursor-pointer p-1.5 rounded select-none border transition ${active ? 'bg-red-500/20 border-red-500/50' : 'bg-slate-800 border-transparent hover:bg-slate-700'}`}>
               <input 
@@ -748,6 +782,21 @@ export function UIDebugger() {
                 <button onClick={() => setSimulatorMode('desktop')} className="bg-slate-700 hover:bg-slate-600 text-white py-1 rounded text-[10px]">💻 Desktop</button>
                 <button onClick={() => setSimulatorMode('auto')} className="bg-purple-700 hover:bg-purple-600 text-white py-1 rounded text-[10px]">🔄 Auto-Cycle</button>
                 <button onClick={runExtremeRatioTest} className="col-span-2 bg-red-900 hover:bg-red-800 text-white py-1 rounded text-[10px] font-bold">🔥 Extreme Ratio Test</button>
+              </div>
+            </div>
+
+            {/* --- Animation Control --- */}
+            <div className="bg-slate-800 p-3 rounded border border-slate-700">
+              <h4 className="font-bold text-white mb-2">Animation Speed</h4>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-slate-400">Slow</span>
+                <input 
+                  type="range" min="0.1" max="2" step="0.1" 
+                  value={animationSpeed} 
+                  onChange={e => setAnimationSpeed(parseFloat(e.target.value))}
+                  className="flex-1 h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer"
+                />
+                <span className="text-[10px] text-slate-400">Fast ({animationSpeed}x)</span>
               </div>
             </div>
 
@@ -911,6 +960,10 @@ export function UIDebugger() {
       {toggles.transform && <style>{`* { transform: none !important; }`}</style>}
       {toggles.background && <style>{`* { background-color: transparent !important; background: none !important; }`}</style>}
       
+      {/* New Feature Styles */}
+      {toggles.layout && <style>{`* { outline: 1px solid rgba(255, 0, 0, 0.2) !important; }`}</style>}
+      {animationSpeed !== 1 && <style>{`* { animation-duration: ${1/animationSpeed}s !important; transition-duration: ${1/animationSpeed}s !important; }`}</style>}
+
       {/* Targeted Style Injection */}
       <style>
         {targetedRules.map(r => `${r.selector} { ${r.property}: ${r.value}; }`).join('\n')}

@@ -2,42 +2,44 @@
 
 **The Ultimate Visual Debugging Suite for Web Applications**
 
-UI Debugger Pro is a universal tool designed to help developers find and fix visual bugs, layout issues, and responsiveness problems. It is available for both Python (Flask/Django) and JavaScript (React/Next.js) environments.
+UI Debugger Pro is a universal tool designed to help developers find and fix visual bugs, layout issues, and responsiveness problems. It works with **React, Next.js, Vue, Svelte, Python (Flask/Django), PHP, Ruby, and static HTML**.
 
-## Choose Your Version
+## 🚀 Quick Start
 
-### 📦 For React / Next.js / Vite
-Use the NPM package for a native React component experience.
+### Choose Your Environment
 
-[**Go to NPM Package Docs**](./ui_debugger_pro_js/README.md)
+| Environment | Installation Method | Guide |
+| :--- | :--- | :--- |
+| **React / Next.js / Vite** | `npm install ui-debugger-pro` | [**Read Guide**](./docs/INSTALL_REACT.md) |
+| **Python (Flask / Django)** | `pip install ui-debugger-pro` | [**Read Guide**](./docs/INSTALL_PYTHON.md) |
+| **HTML / PHP / Ruby** | Add `<script>` tag | [**Read Guide**](./docs/INSTALL_VANILLA.md) |
+| **Any Website (No Code)** | Bookmarklet | [**Get Bookmarklet**](./docs/INSTALL_VANILLA.md#bookmarklet-no-install-required) |
 
-```bash
-npm install ui-debugger-pro
-```
+---
 
-### 🌐 For Any Website (CDN)
-Use the standalone script for PHP, Ruby, or static HTML sites.
+## ✨ Features
 
-```html
-<script src="https://unpkg.com/ui-debugger-pro/dist/index.global.js"></script>
-<script>window.mountUIDebugger()</script>
-```
+### 🕵️ Deep Scan Audit
+Automatically detect common UI issues across your entire page:
+- **Overlap Detection**: Finds elements that are accidentally covering each other.
+- **Cutoff Detection**: Identifies content that overflows its container.
+- **Alignment Check**: Detects elements that are *almost* aligned (1-3px off).
+- **Accessibility Check**: Flags low contrast text (New!).
 
-### 🐍 For Flask / Django / Python
-Use the Python package to inject the debugger into your server-rendered templates.
+### 🛠️ Visual Tools
+- **Layout Grid**: Visualize the structure of your page with a single click.
+- **Animation Control**: Slow down animations to debug transitions.
+- **Global Killers**: Toggle off CSS properties (Outline, Shadow, Border, Background) globally.
 
-[**Go to Python Package Docs**](./ui_debugger_pro_pkg/README.md)
+### 📱 Responsive Simulator
+Test your app on any device size without resizing your browser:
+- **Presets**: Mobile, Tablet, Desktop.
+- **Extreme Ratio Test**: Stress-tests your layout with 20:1 to 1:20 aspect ratios.
 
-```bash
-pip install ui-debugger-pro
-```
+### 🐒 Monkey Test
+Automated chaos testing for your UI. Clicks random buttons to find broken paths.
 
-## Features
-
-- **🕵️ Deep Scan**: Automatically detect overlaps, cutoffs, and alignment issues.
-- **📱 Responsive Simulator**: Test mobile/tablet views instantly.
-- **🐒 Monkey Test**: Chaos testing for your UI.
-- **⚡ Universal**: Works in any web environment.
+---
 
 ## Contributing
 
@@ -45,4 +47,5 @@ This is a monorepo containing both the Python and JavaScript packages.
 
 - `ui_debugger_pro_pkg/`: Python package source.
 - `ui_debugger_pro_js/`: NPM package source.
+
 
