@@ -163,6 +163,12 @@ def start(args):
         
         # Try to run the JS CLI automatically
         try:
+            # Check if ui-debugger-pro is directly available (e.g. npm link or global install)
+            if shutil.which('ui-debugger-pro'):
+                 click.echo("🚀 Executing: ui-debugger-pro start")
+                 subprocess.run(['ui-debugger-pro', 'start'], check=False, shell=(os.name == 'nt'))
+                 return
+
             # Check if npx is available
             if shutil.which('npx'):
                 click.echo("🚀 Executing: npx ui-debugger-pro start")

@@ -179,11 +179,19 @@ export function UIDebugger() {
   const configRef = useRef({ trackHover, trackClick, trackFocus, trackSelect });
   const historyRef = useRef(history);
   const activeTabRef = useRef(activeTab);
+  const originalStylesRef = useRef(new Map());
   
   useEffect(() => { isPausedRef.current = isPaused; }, [isPaused]);
   useEffect(() => { configRef.current = { trackHover, trackClick, trackFocus, trackSelect }; }, [trackHover, trackClick, trackFocus, trackSelect]);
   useEffect(() => { historyRef.current = history; }, [history]);
   useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
+
+  // Capture original styles when an element is selected
+  useEffect(() => {
+    if (selectedElement && !originalStylesRef.current.has(selectedElement)) {
+      originalStylesRef.current.set(selectedElement, selectedElement.style.cssText);
+    }
+  }, [selectedElement]);
 
   // --- Persistence ---
   useEffect(() => {
@@ -249,6 +257,45 @@ export function UIDebugger() {
     };
 
     setAppliedFixes(prev => [...prev, fixRecord]);
+  };
+
+  // --- Revert Element Changes ---
+  const revertElementChanges = (el) => {
+    if (!el) return;
+    if (originalStylesRef.current.has(el)) {
+      el.style.cssText = originalStylesRef.current.get(el);
+      alert('Element styles reverted to original!');
+    } else {
+      el.style.cssText = ''; // Fallback
+      alert('Element styles reset (no original found)!');
+    }
+  };
+
+  const injectScrollbarStyles = () => {
+    const id = 'ui-debugger-scrollbar-styles';
+    if (document.getElementById(id)) {
+      alert('Scrollbar styles already injected.');
+      return;
+    }
+    const style = document.createElement('style');
+    style.id = id;
+    style.textContent = `
+      ::-webkit-scrollbar { width: 12px; height: 12px; }
+      ::-webkit-scrollbar-track { background: #f1f1f1; }
+      ::-webkit-scrollbar-thumb { background: #888; border-radius: 6px; border: 3px solid #f1f1f1; }
+      ::-webkit-scrollbar-thumb:hover { background: #555; }
+    `;
+    document.head.appendChild(style);
+    alert('Custom scrollbar styles injected!');
+  };
+
+  const makeResponsive = (el) => {
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    el.style.width = '100%';
+    el.style.maxWidth = `${rect.width}px`;
+    el.style.height = 'auto';
+    alert('Element made responsive (width: 100%, max-width: fixed)!');
   };
 
   // --- Server Communication ---
@@ -609,7 +656,7 @@ export function UIDebugger() {
 
     setHistory(prev => {
       if (prev.length > 0 && prev[0].path === info.path && prev[0].eventType === info.eventType) return prev;
-      return [info, ...prev].slice(0, 300);
+      return [info, ...prev].slice(0, 5000); // Increased history limit
     });
   };
 
@@ -969,6 +1016,12 @@ export function UIDebugger() {
                   🐒 Monkey Test
                 </button>
               </div>
+              <button 
+                onClick={injectScrollbarStyles} 
+                className="w-full py-2 rounded font-bold text-white bg-teal-700 hover:bg-teal-600 mb-2"
+              >
+                🎨 Style Scrollbars
+              </button>
               
               {/* Sensitivity Slider */}
               <div className="mt-3">
@@ -1185,6 +1238,18 @@ export function UIDebugger() {
                     className="bg-red-900/50 hover:bg-red-800 text-red-200 py-1 rounded text-[10px]"
                   >
                     🗑️ Delete
+                  </button>
+                  <button 
+                    onClick={() => revertElementChanges(selectedElement)}
+                    className="bg-slate-700 hover:bg-yellow-600 text-white py-1 rounded text-[10px]"
+                  >
+                    ↩️ Revert
+                  </button>
+                  <button 
+                    onClick={() => makeResponsive(selectedElement)}
+                    className="bg-slate-700 hover:bg-blue-600 text-white py-1 rounded text-[10px]"
+                  >
+                    📱 Responsive
                   </button>
                 </div>
 

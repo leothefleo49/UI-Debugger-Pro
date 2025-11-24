@@ -1,8 +1,41 @@
 import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+"use strict";
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // src/index.tsx
-import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { createRoot } from "react-dom/client";
+var index_exports = {};
+__export(index_exports, {
+  UIDebugger: () => UIDebugger
+});
+module.exports = __toCommonJS(index_exports);
+var import_react = __toESM(require("react"), 1);
+var import_client = require("react-dom/client");
 var SYMPTOMS = [
   { id: "glow", label: "Glowing / Shining", description: "Elements have a halo, fuzzy edge, or light emitting from them.", recommendedToggles: ["shadow", "filter", "ring"] },
   { id: "border", label: "Lines / Borders", description: "Sharp lines, rectangles, or outlines appear around elements.", recommendedToggles: ["outline", "border", "ring"] },
@@ -22,26 +55,26 @@ var THEMES = {
 };
 var STORAGE_KEY = "ui_debugger_pro_config_v7_0";
 function UIDebugger() {
-  const [showWizard, setShowWizard] = useState(() => {
+  const [showWizard, setShowWizard] = (0, import_react.useState)(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved).showWizard : true;
   });
-  const [selectedSymptoms, setSelectedSymptoms] = useState([]);
-  const [theme, setTheme] = useState(() => {
+  const [selectedSymptoms, setSelectedSymptoms] = (0, import_react.useState)([]);
+  const [theme, setTheme] = (0, import_react.useState)(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved).theme || "dark" : "dark";
   });
-  const [headlessMode, setHeadlessMode] = useState(false);
-  const [panelSize, setPanelSize] = useState(() => {
+  const [headlessMode, setHeadlessMode] = (0, import_react.useState)(false);
+  const [panelSize, setPanelSize] = (0, import_react.useState)(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved).panelSize || { width: 800, height: 400 } : { width: 800, height: 400 };
   });
-  const [panelPosition, setPanelPosition] = useState(() => {
+  const [panelPosition, setPanelPosition] = (0, import_react.useState)(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     const defaultPos = { x: 50, y: window.innerHeight - 450 };
     return saved ? JSON.parse(saved).panelPosition || defaultPos : defaultPos;
   });
-  const [toggles, setToggles] = useState(() => {
+  const [toggles, setToggles] = (0, import_react.useState)(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved).toggles : {
       outline: false,
@@ -68,11 +101,11 @@ function UIDebugger() {
       // Ruler Tool
     };
   });
-  useEffect(() => {
+  (0, import_react.useEffect)(() => {
     document.designMode = toggles.edit ? "on" : "off";
   }, [toggles.edit]);
-  const [rulerBox, setRulerBox] = useState(null);
-  useEffect(() => {
+  const [rulerBox, setRulerBox] = (0, import_react.useState)(null);
+  (0, import_react.useEffect)(() => {
     if (!toggles.ruler) {
       setRulerBox(null);
       return;
@@ -110,56 +143,56 @@ function UIDebugger() {
       document.removeEventListener("mouseup", onMouseUp);
     };
   }, [toggles.ruler]);
-  const [animationSpeed, setAnimationSpeed] = useState(1);
-  const [targetedRules, setTargetedRules] = useState(() => {
+  const [animationSpeed, setAnimationSpeed] = (0, import_react.useState)(1);
+  const [targetedRules, setTargetedRules] = (0, import_react.useState)(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved).targetedRules : [];
   });
-  const [trackHover, setTrackHover] = useState(true);
-  const [trackClick, setTrackClick] = useState(true);
-  const [trackFocus, setTrackFocus] = useState(true);
-  const [trackSelect, setTrackSelect] = useState(true);
-  const [maxLogs, setMaxLogs] = useState(50);
-  const [autoSave, setAutoSave] = useState(true);
-  const [scanResults, setScanResults] = useState([]);
-  const [isScanning, setIsScanning] = useState(false);
-  const [simulatorMode, setSimulatorMode] = useState(null);
-  const [simScale, setSimScale] = useState(1);
-  const [ignoredIssues, setIgnoredIssues] = useState(() => {
+  const [trackHover, setTrackHover] = (0, import_react.useState)(true);
+  const [trackClick, setTrackClick] = (0, import_react.useState)(true);
+  const [trackFocus, setTrackFocus] = (0, import_react.useState)(true);
+  const [trackSelect, setTrackSelect] = (0, import_react.useState)(true);
+  const [maxLogs, setMaxLogs] = (0, import_react.useState)(50);
+  const [autoSave, setAutoSave] = (0, import_react.useState)(true);
+  const [scanResults, setScanResults] = (0, import_react.useState)([]);
+  const [isScanning, setIsScanning] = (0, import_react.useState)(false);
+  const [simulatorMode, setSimulatorMode] = (0, import_react.useState)(null);
+  const [simScale, setSimScale] = (0, import_react.useState)(1);
+  const [ignoredIssues, setIgnoredIssues] = (0, import_react.useState)(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved).ignoredIssues || [] : [];
   });
-  const [sensitivity, setSensitivity] = useState(0.5);
-  const [appliedFixes, setAppliedFixes] = useState([]);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [history, setHistory] = useState([]);
-  const [activeTab, setActiveTab] = useState("live");
-  const [selectedElement, setSelectedElement] = useState(null);
-  const [dragMode, setDragMode] = useState(false);
-  const isPausedRef = useRef(isPaused);
-  const configRef = useRef({ trackHover, trackClick, trackFocus, trackSelect });
-  const historyRef = useRef(history);
-  const activeTabRef = useRef(activeTab);
-  const originalStylesRef = useRef(/* @__PURE__ */ new Map());
-  useEffect(() => {
+  const [sensitivity, setSensitivity] = (0, import_react.useState)(0.5);
+  const [appliedFixes, setAppliedFixes] = (0, import_react.useState)([]);
+  const [isPaused, setIsPaused] = (0, import_react.useState)(false);
+  const [isExpanded, setIsExpanded] = (0, import_react.useState)(false);
+  const [history, setHistory] = (0, import_react.useState)([]);
+  const [activeTab, setActiveTab] = (0, import_react.useState)("live");
+  const [selectedElement, setSelectedElement] = (0, import_react.useState)(null);
+  const [dragMode, setDragMode] = (0, import_react.useState)(false);
+  const isPausedRef = (0, import_react.useRef)(isPaused);
+  const configRef = (0, import_react.useRef)({ trackHover, trackClick, trackFocus, trackSelect });
+  const historyRef = (0, import_react.useRef)(history);
+  const activeTabRef = (0, import_react.useRef)(activeTab);
+  const originalStylesRef = (0, import_react.useRef)(/* @__PURE__ */ new Map());
+  (0, import_react.useEffect)(() => {
     isPausedRef.current = isPaused;
   }, [isPaused]);
-  useEffect(() => {
+  (0, import_react.useEffect)(() => {
     configRef.current = { trackHover, trackClick, trackFocus, trackSelect };
   }, [trackHover, trackClick, trackFocus, trackSelect]);
-  useEffect(() => {
+  (0, import_react.useEffect)(() => {
     historyRef.current = history;
   }, [history]);
-  useEffect(() => {
+  (0, import_react.useEffect)(() => {
     activeTabRef.current = activeTab;
   }, [activeTab]);
-  useEffect(() => {
+  (0, import_react.useEffect)(() => {
     if (selectedElement && !originalStylesRef.current.has(selectedElement)) {
       originalStylesRef.current.set(selectedElement, selectedElement.style.cssText);
     }
   }, [selectedElement]);
-  useEffect(() => {
+  (0, import_react.useEffect)(() => {
     const config = {
       toggles,
       targetedRules,
@@ -275,7 +308,7 @@ function UIDebugger() {
     el.style.height = "auto";
     alert("Element made responsive (width: 100%, max-width: fixed)!");
   };
-  const saveLogsToServer = useCallback(async (silent = false, data) => {
+  const saveLogsToServer = (0, import_react.useCallback)(async (silent = false, data) => {
     const dataToUse = data || historyRef.current;
     if (dataToUse.length === 0) return;
     try {
@@ -316,7 +349,7 @@ function UIDebugger() {
       alert("Could not connect to CLI server. Is it running?");
     }
   };
-  useEffect(() => {
+  (0, import_react.useEffect)(() => {
     if (!autoSave || isPaused) return;
     const interval = setInterval(() => saveLogsToServer(true), 3e4);
     return () => clearInterval(interval);
@@ -470,7 +503,7 @@ function UIDebugger() {
     }
     alert("Monkey Test Complete!");
   };
-  useEffect(() => {
+  (0, import_react.useEffect)(() => {
     let interval;
     if (simulatorMode === "auto") {
       const modes = ["mobile", "tablet", "desktop"];
@@ -481,7 +514,7 @@ function UIDebugger() {
     }
     return () => clearInterval(interval);
   }, [simulatorMode]);
-  const [customSimSize, setCustomSimSize] = useState(null);
+  const [customSimSize, setCustomSimSize] = (0, import_react.useState)(null);
   const runExtremeRatioTest = () => {
     setSimulatorMode("custom");
     const ratios = [
@@ -570,7 +603,7 @@ function UIDebugger() {
   const removeTargetedRule = (index) => {
     setTargetedRules((prev) => prev.filter((_, i) => i !== index));
   };
-  useEffect(() => {
+  (0, import_react.useEffect)(() => {
     const handleMouseOver = (e) => {
       if (activeTabRef.current === "design") {
         if (!e.target.closest("#ui-debugger-pro-root")) {
@@ -617,7 +650,7 @@ function UIDebugger() {
       document.removeEventListener("selectionchange", handleSelection);
     };
   }, []);
-  const suspects = useMemo(() => {
+  const suspects = (0, import_react.useMemo)(() => {
     const counts = {};
     history.forEach((item) => {
       if (!counts[item.path]) counts[item.path] = { count: 0, info: item, types: /* @__PURE__ */ new Set() };
@@ -675,17 +708,17 @@ function UIDebugger() {
   };
   const currentTheme = THEMES[theme];
   if (headlessMode) {
-    return /* @__PURE__ */ React.createElement("div", { className: "fixed bottom-4 right-4 z-[10000]" }, /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ import_react.default.createElement("div", { className: "fixed bottom-4 right-4 z-[10000]" }, /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => setHeadlessMode(false),
         className: "bg-red-600 text-white px-3 py-1 rounded shadow-lg font-mono text-xs hover:bg-red-500"
       },
       "\u{1F534} REC (UI Hidden)"
-    ), /* @__PURE__ */ React.createElement("style", null, toggles.outline && `* { outline: none !important; }`), /* @__PURE__ */ React.createElement("style", null, toggles.shadow && `* { box-shadow: none !important; }`), /* @__PURE__ */ React.createElement("style", null, targetedRules.map((r) => `${r.selector} { ${r.property}: ${r.value}; }`).join("\n")));
+    ), /* @__PURE__ */ import_react.default.createElement("style", null, toggles.outline && `* { outline: none !important; }`), /* @__PURE__ */ import_react.default.createElement("style", null, toggles.shadow && `* { box-shadow: none !important; }`), /* @__PURE__ */ import_react.default.createElement("style", null, targetedRules.map((r) => `${r.selector} { ${r.property}: ${r.value}; }`).join("\n")));
   }
   if (showWizard) {
-    return /* @__PURE__ */ React.createElement("div", { className: "fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-sans" }, /* @__PURE__ */ React.createElement("div", { className: `w-full max-w-lg ${currentTheme.bg} border-2 ${currentTheme.border} rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]` }, /* @__PURE__ */ React.createElement("div", { className: "p-6 border-b border-slate-700" }, /* @__PURE__ */ React.createElement("h2", { className: `text-2xl font-bold ${currentTheme.text} mb-2` }, "\u{1F575}\uFE0F Debugger Pro v7.0"), /* @__PURE__ */ React.createElement("p", { className: "text-slate-400" }, "What kind of visual bug are you hunting?")), /* @__PURE__ */ React.createElement("div", { className: "p-6 overflow-y-auto space-y-3" }, SYMPTOMS.map((s) => /* @__PURE__ */ React.createElement("label", { key: s.id, className: `flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition ${selectedSymptoms.includes(s.id) ? "bg-indigo-500/20 border-indigo-500" : "bg-slate-800 border-slate-700 hover:border-slate-500"}` }, /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ import_react.default.createElement("div", { className: "fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-sans" }, /* @__PURE__ */ import_react.default.createElement("div", { className: `w-full max-w-lg ${currentTheme.bg} border-2 ${currentTheme.border} rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]` }, /* @__PURE__ */ import_react.default.createElement("div", { className: "p-6 border-b border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("h2", { className: `text-2xl font-bold ${currentTheme.text} mb-2` }, "\u{1F575}\uFE0F Debugger Pro v7.0"), /* @__PURE__ */ import_react.default.createElement("p", { className: "text-slate-400" }, "What kind of visual bug are you hunting?")), /* @__PURE__ */ import_react.default.createElement("div", { className: "p-6 overflow-y-auto space-y-3" }, SYMPTOMS.map((s) => /* @__PURE__ */ import_react.default.createElement("label", { key: s.id, className: `flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition ${selectedSymptoms.includes(s.id) ? "bg-indigo-500/20 border-indigo-500" : "bg-slate-800 border-slate-700 hover:border-slate-500"}` }, /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "checkbox",
@@ -696,9 +729,9 @@ function UIDebugger() {
           else setSelectedSymptoms((prev) => prev.filter((id) => id !== s.id));
         }
       }
-    ), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "font-bold text-white" }, s.label), /* @__PURE__ */ React.createElement("div", { className: "text-sm text-slate-400" }, s.description))))), /* @__PURE__ */ React.createElement("div", { className: "p-6 border-t border-slate-700 flex justify-end gap-3" }, /* @__PURE__ */ React.createElement("button", { onClick: () => setShowWizard(false), className: "px-4 py-2 text-slate-400 hover:text-white" }, "Skip Setup"), /* @__PURE__ */ React.createElement("button", { onClick: applyWizard, className: "px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg" }, "Start Debugging"))));
+    ), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("div", { className: "font-bold text-white" }, s.label), /* @__PURE__ */ import_react.default.createElement("div", { className: "text-sm text-slate-400" }, s.description))))), /* @__PURE__ */ import_react.default.createElement("div", { className: "p-6 border-t border-slate-700 flex justify-end gap-3" }, /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => setShowWizard(false), className: "px-4 py-2 text-slate-400 hover:text-white" }, "Skip Setup"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: applyWizard, className: "px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg" }, "Start Debugging"))));
   }
-  return /* @__PURE__ */ React.createElement(
+  return /* @__PURE__ */ import_react.default.createElement(
     "div",
     {
       id: "debug-highlighter-panel",
@@ -710,27 +743,27 @@ function UIDebugger() {
         height: isExpanded ? "100vh" : panelSize.height
       }
     },
-    /* @__PURE__ */ React.createElement("link", { href: "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css", rel: "stylesheet" }),
-    !isExpanded && /* @__PURE__ */ React.createElement(
+    /* @__PURE__ */ import_react.default.createElement("link", { href: "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css", rel: "stylesheet" }),
+    !isExpanded && /* @__PURE__ */ import_react.default.createElement(
       "div",
       {
         className: "absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-50 flex items-center justify-center hover:bg-white/10 rounded-br-xl",
         onMouseDown: startResize
       },
-      /* @__PURE__ */ React.createElement("div", { className: "w-1.5 h-1.5 border-b-2 border-r-2 border-indigo-400/50" })
+      /* @__PURE__ */ import_react.default.createElement("div", { className: "w-1.5 h-1.5 border-b-2 border-r-2 border-indigo-400/50" })
     ),
-    /* @__PURE__ */ React.createElement(
+    /* @__PURE__ */ import_react.default.createElement(
       "div",
       {
         className: "flex justify-between items-center p-3 border-b border-slate-700 bg-slate-800/50 rounded-t-xl shrink-0 cursor-move select-none",
         onMouseDown: startMove,
         onDoubleClick: () => setIsExpanded(!isExpanded)
       },
-      /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement("h3", { className: `font-bold text-${currentTheme.accent}-400 text-sm` }, "UI DEBUGGER PRO"), /* @__PURE__ */ React.createElement("button", { onClick: (e) => {
+      /* @__PURE__ */ import_react.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react.default.createElement("h3", { className: `font-bold text-${currentTheme.accent}-400 text-sm` }, "UI DEBUGGER PRO"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: (e) => {
         e.stopPropagation();
         setShowWizard(true);
       }, className: "text-[10px] bg-slate-700 px-2 py-0.5 rounded hover:bg-slate-600 ml-2" }, "Wizard")),
-      /* @__PURE__ */ React.createElement("div", { className: "flex gap-2", onMouseDown: (e) => e.stopPropagation() }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-1 mr-2" }, /* @__PURE__ */ React.createElement("div", { className: `w-2 h-2 rounded-full ${autoSave ? "bg-green-500 animate-pulse" : "bg-slate-600"}`, title: "Auto-save status" }), /* @__PURE__ */ React.createElement("span", { className: "text-[10px] text-slate-500" }, history.length, " events")), /* @__PURE__ */ React.createElement("button", { onClick: () => saveLogsToServer(false), className: "bg-blue-900/80 px-2 py-1 rounded hover:bg-blue-800 text-[10px] text-blue-200" }, "\u{1F4BE} SAVE"), /* @__PURE__ */ React.createElement(
+      /* @__PURE__ */ import_react.default.createElement("div", { className: "flex gap-2", onMouseDown: (e) => e.stopPropagation() }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex items-center gap-1 mr-2" }, /* @__PURE__ */ import_react.default.createElement("div", { className: `w-2 h-2 rounded-full ${autoSave ? "bg-green-500 animate-pulse" : "bg-slate-600"}`, title: "Auto-save status" }), /* @__PURE__ */ import_react.default.createElement("span", { className: "text-[10px] text-slate-500" }, history.length, " events")), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => saveLogsToServer(false), className: "bg-blue-900/80 px-2 py-1 rounded hover:bg-blue-800 text-[10px] text-blue-200" }, "\u{1F4BE} SAVE"), /* @__PURE__ */ import_react.default.createElement(
         "button",
         {
           onClick: () => {
@@ -744,16 +777,16 @@ ${url}`);
           title: "Open Documentation"
         },
         "\u2753 HELP"
-      ), /* @__PURE__ */ React.createElement("button", { onClick: () => setHeadlessMode(true), className: "bg-slate-700 px-2 py-1 rounded hover:bg-slate-600 text-[10px]" }, "\u{1F441}\uFE0F HIDE UI"), /* @__PURE__ */ React.createElement(
+      ), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => setHeadlessMode(true), className: "bg-slate-700 px-2 py-1 rounded hover:bg-slate-600 text-[10px]" }, "\u{1F441}\uFE0F HIDE UI"), /* @__PURE__ */ import_react.default.createElement(
         "button",
         {
           onClick: () => setIsPaused(!isPaused),
           className: `px-2 py-1 rounded text-[10px] font-bold ${isPaused ? "bg-yellow-600 text-white" : "bg-slate-700 text-slate-300 hover:bg-slate-600"}`
         },
         isPaused ? "\u25B6 RESUME" : "\u23F8 PAUSE"
-      ), /* @__PURE__ */ React.createElement("button", { onClick: resetAll, className: "bg-red-900/80 px-2 py-1 rounded hover:bg-red-800 text-[10px]" }, "RESET"))
+      ), /* @__PURE__ */ import_react.default.createElement("button", { onClick: resetAll, className: "bg-red-900/80 px-2 py-1 rounded hover:bg-red-800 text-[10px]" }, "RESET"))
     ),
-    /* @__PURE__ */ React.createElement("div", { className: "p-3 border-b border-slate-700 bg-slate-900 shrink-0" }, /* @__PURE__ */ React.createElement("div", { className: "text-[10px] font-bold text-slate-500 uppercase mb-2 flex justify-between" }, /* @__PURE__ */ React.createElement("span", null, "Global Killers"), /* @__PURE__ */ React.createElement("span", { className: `text-${currentTheme.accent}-400` }, Object.values(toggles).filter(Boolean).length, " Active")), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-4 gap-2" }, Object.entries(toggles).map(([key, active]) => /* @__PURE__ */ React.createElement("label", { key, className: `flex items-center gap-2 cursor-pointer p-1.5 rounded select-none border transition ${active ? "bg-red-500/20 border-red-500/50" : "bg-slate-800 border-transparent hover:bg-slate-700"}` }, /* @__PURE__ */ React.createElement(
+    /* @__PURE__ */ import_react.default.createElement("div", { className: "p-3 border-b border-slate-700 bg-slate-900 shrink-0" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "text-[10px] font-bold text-slate-500 uppercase mb-2 flex justify-between" }, /* @__PURE__ */ import_react.default.createElement("span", null, "Global Killers"), /* @__PURE__ */ import_react.default.createElement("span", { className: `text-${currentTheme.accent}-400` }, Object.values(toggles).filter(Boolean).length, " Active")), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-4 gap-2" }, Object.entries(toggles).map(([key, active]) => /* @__PURE__ */ import_react.default.createElement("label", { key, className: `flex items-center gap-2 cursor-pointer p-1.5 rounded select-none border transition ${active ? "bg-red-500/20 border-red-500/50" : "bg-slate-800 border-transparent hover:bg-slate-700"}` }, /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "checkbox",
@@ -761,8 +794,8 @@ ${url}`);
         onChange: (e) => setToggles((prev) => ({ ...prev, [key]: e.target.checked })),
         className: "w-3 h-3"
       }
-    ), /* @__PURE__ */ React.createElement("span", { className: `capitalize truncate ${active ? "text-red-200 font-bold" : "text-slate-400"}` }, key.replace(/([A-Z])/g, " $1").trim()))))),
-    /* @__PURE__ */ React.createElement("div", { className: "flex border-b border-slate-700 bg-slate-800/30 shrink-0" }, ["live", "suspects", "audit", "design", "rules", "settings"].map((tab) => /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement("span", { className: `capitalize truncate ${active ? "text-red-200 font-bold" : "text-slate-400"}` }, key.replace(/([A-Z])/g, " $1").trim()))))),
+    /* @__PURE__ */ import_react.default.createElement("div", { className: "flex border-b border-slate-700 bg-slate-800/30 shrink-0" }, ["live", "suspects", "audit", "design", "rules", "settings"].map((tab) => /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         key: tab,
@@ -771,7 +804,7 @@ ${url}`);
       },
       tab
     ))),
-    /* @__PURE__ */ React.createElement("div", { className: "flex-1 overflow-y-auto p-2 bg-slate-900/50" }, activeTab === "live" && /* @__PURE__ */ React.createElement("div", { className: "space-y-1" }, history.length === 0 && /* @__PURE__ */ React.createElement("div", { className: "text-center text-slate-600 py-10 italic" }, "Interact with the app to see events..."), history.map((item, i) => /* @__PURE__ */ React.createElement("div", { key: `${item.timestamp}-${i}`, className: "bg-slate-800 p-2 rounded border border-slate-700 hover:border-indigo-500 transition group text-[10px]" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between mb-1" }, /* @__PURE__ */ React.createElement("span", { className: `font-bold uppercase px-1.5 rounded ${item.eventType === "click" ? "bg-green-900 text-green-300" : item.eventType === "hover" ? "bg-indigo-900 text-indigo-300" : item.eventType === "focus" ? "bg-amber-900 text-amber-300" : "bg-blue-900 text-blue-300"}` }, item.eventType), /* @__PURE__ */ React.createElement("span", { className: "text-slate-500" }, new Date(item.timestamp).toLocaleTimeString())), /* @__PURE__ */ React.createElement("div", { className: "font-mono text-slate-300 break-all mb-1" }, item.tag, item.id && /* @__PURE__ */ React.createElement("span", { className: "text-blue-400" }, "#", item.id), item.className && /* @__PURE__ */ React.createElement("span", { className: "text-green-400" }, ".", item.className.split(" ").join("."))), /* @__PURE__ */ React.createElement("div", { className: "flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition" }, /* @__PURE__ */ React.createElement("button", { onClick: () => navigator.clipboard.writeText(item.path), className: "flex-1 bg-slate-700 hover:bg-indigo-600 text-white py-1 rounded" }, "Copy Selector"), /* @__PURE__ */ React.createElement("button", { onClick: () => addTargetedRule(item.path, "background", "transparent !important"), className: "flex-1 bg-slate-700 hover:bg-red-600 text-white py-1 rounded" }, "Kill BG"), /* @__PURE__ */ React.createElement("button", { onClick: () => addTargetedRule(item.path, "outline", "none !important"), className: "flex-1 bg-slate-700 hover:bg-red-600 text-white py-1 rounded" }, "Kill Outline"))))), activeTab === "suspects" && /* @__PURE__ */ React.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ React.createElement("p", { className: "text-[10px] text-slate-500 uppercase tracking-wider mb-2" }, "Top 15 Most Frequent Elements"), suspects.map((suspect, i) => /* @__PURE__ */ React.createElement("div", { key: i, className: "bg-slate-800/50 p-2 rounded border border-amber-500/20 hover:border-amber-500/50 transition" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between items-start mb-1" }, /* @__PURE__ */ React.createElement("span", { className: "text-amber-400 font-bold" }, "#", i + 1), /* @__PURE__ */ React.createElement("div", { className: "flex gap-1" }, Array.from(suspect.types).map((t) => /* @__PURE__ */ React.createElement("span", { key: t, className: "bg-slate-700 px-1 rounded text-[9px] uppercase" }, t)), /* @__PURE__ */ React.createElement("span", { className: "bg-amber-900/30 text-amber-200 px-1.5 rounded text-[10px] font-bold" }, suspect.count))), /* @__PURE__ */ React.createElement("div", { className: "font-mono text-[10px] break-all text-slate-300 mb-1" }, suspect.info.tag, suspect.info.id && /* @__PURE__ */ React.createElement("span", { className: "text-blue-400" }, "#", suspect.info.id), suspect.info.className && /* @__PURE__ */ React.createElement("span", { className: "text-green-400" }, ".", suspect.info.className.split(" ").join("."))), /* @__PURE__ */ React.createElement("div", { className: "flex gap-1 mt-1" }, /* @__PURE__ */ React.createElement("button", { onClick: () => navigator.clipboard.writeText(suspect.info.path), className: "text-[9px] text-indigo-400 hover:text-indigo-300 underline" }, "Copy Selector"), /* @__PURE__ */ React.createElement("span", { className: "text-slate-600" }, "|"), /* @__PURE__ */ React.createElement("button", { onClick: () => addTargetedRule(suspect.info.path, "background", "transparent !important"), className: "text-[9px] text-red-400 hover:text-red-300 underline" }, "Kill BG"))))), activeTab === "audit" && /* @__PURE__ */ React.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ React.createElement("div", { className: "bg-slate-800 p-3 rounded border border-slate-700" }, /* @__PURE__ */ React.createElement("h4", { className: "font-bold text-white mb-2" }, "Deep Scan & Automation"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-2 mb-2" }, /* @__PURE__ */ React.createElement(
+    /* @__PURE__ */ import_react.default.createElement("div", { className: "flex-1 overflow-y-auto p-2 bg-slate-900/50" }, activeTab === "live" && /* @__PURE__ */ import_react.default.createElement("div", { className: "space-y-1" }, history.length === 0 && /* @__PURE__ */ import_react.default.createElement("div", { className: "text-center text-slate-600 py-10 italic" }, "Interact with the app to see events..."), history.map((item, i) => /* @__PURE__ */ import_react.default.createElement("div", { key: `${item.timestamp}-${i}`, className: "bg-slate-800 p-2 rounded border border-slate-700 hover:border-indigo-500 transition group text-[10px]" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between mb-1" }, /* @__PURE__ */ import_react.default.createElement("span", { className: `font-bold uppercase px-1.5 rounded ${item.eventType === "click" ? "bg-green-900 text-green-300" : item.eventType === "hover" ? "bg-indigo-900 text-indigo-300" : item.eventType === "focus" ? "bg-amber-900 text-amber-300" : "bg-blue-900 text-blue-300"}` }, item.eventType), /* @__PURE__ */ import_react.default.createElement("span", { className: "text-slate-500" }, new Date(item.timestamp).toLocaleTimeString())), /* @__PURE__ */ import_react.default.createElement("div", { className: "font-mono text-slate-300 break-all mb-1" }, item.tag, item.id && /* @__PURE__ */ import_react.default.createElement("span", { className: "text-blue-400" }, "#", item.id), item.className && /* @__PURE__ */ import_react.default.createElement("span", { className: "text-green-400" }, ".", item.className.split(" ").join("."))), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition" }, /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => navigator.clipboard.writeText(item.path), className: "flex-1 bg-slate-700 hover:bg-indigo-600 text-white py-1 rounded" }, "Copy Selector"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => addTargetedRule(item.path, "background", "transparent !important"), className: "flex-1 bg-slate-700 hover:bg-red-600 text-white py-1 rounded" }, "Kill BG"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => addTargetedRule(item.path, "outline", "none !important"), className: "flex-1 bg-slate-700 hover:bg-red-600 text-white py-1 rounded" }, "Kill Outline"))))), activeTab === "suspects" && /* @__PURE__ */ import_react.default.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ import_react.default.createElement("p", { className: "text-[10px] text-slate-500 uppercase tracking-wider mb-2" }, "Top 15 Most Frequent Elements"), suspects.map((suspect, i) => /* @__PURE__ */ import_react.default.createElement("div", { key: i, className: "bg-slate-800/50 p-2 rounded border border-amber-500/20 hover:border-amber-500/50 transition" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between items-start mb-1" }, /* @__PURE__ */ import_react.default.createElement("span", { className: "text-amber-400 font-bold" }, "#", i + 1), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex gap-1" }, Array.from(suspect.types).map((t) => /* @__PURE__ */ import_react.default.createElement("span", { key: t, className: "bg-slate-700 px-1 rounded text-[9px] uppercase" }, t)), /* @__PURE__ */ import_react.default.createElement("span", { className: "bg-amber-900/30 text-amber-200 px-1.5 rounded text-[10px] font-bold" }, suspect.count))), /* @__PURE__ */ import_react.default.createElement("div", { className: "font-mono text-[10px] break-all text-slate-300 mb-1" }, suspect.info.tag, suspect.info.id && /* @__PURE__ */ import_react.default.createElement("span", { className: "text-blue-400" }, "#", suspect.info.id), suspect.info.className && /* @__PURE__ */ import_react.default.createElement("span", { className: "text-green-400" }, ".", suspect.info.className.split(" ").join("."))), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex gap-1 mt-1" }, /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => navigator.clipboard.writeText(suspect.info.path), className: "text-[9px] text-indigo-400 hover:text-indigo-300 underline" }, "Copy Selector"), /* @__PURE__ */ import_react.default.createElement("span", { className: "text-slate-600" }, "|"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => addTargetedRule(suspect.info.path, "background", "transparent !important"), className: "text-[9px] text-red-400 hover:text-red-300 underline" }, "Kill BG"))))), activeTab === "audit" && /* @__PURE__ */ import_react.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-800 p-3 rounded border border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("h4", { className: "font-bold text-white mb-2" }, "Deep Scan & Automation"), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex gap-2 mb-2" }, /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: runDeepScan,
@@ -779,21 +812,21 @@ ${url}`);
         className: `flex-1 py-2 rounded font-bold text-white ${isScanning ? "bg-slate-600 cursor-wait" : "bg-indigo-600 hover:bg-indigo-500"}`
       },
       isScanning ? "Scanning..." : "\u{1F50D} Run Deep Scan"
-    ), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: runMonkeyTest,
         className: "flex-1 py-2 rounded font-bold text-white bg-amber-700 hover:bg-amber-600"
       },
       "\u{1F412} Monkey Test"
-    )), /* @__PURE__ */ React.createElement(
+    )), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: injectScrollbarStyles,
         className: "w-full py-2 rounded font-bold text-white bg-teal-700 hover:bg-teal-600 mb-2"
       },
       "\u{1F3A8} Style Scrollbars"
-    ), /* @__PURE__ */ React.createElement("div", { className: "mt-3" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between text-[10px] text-slate-400 mb-1" }, /* @__PURE__ */ React.createElement("span", null, "Scan Sensitivity"), /* @__PURE__ */ React.createElement("span", null, Math.round(sensitivity * 100), "%")), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement("div", { className: "mt-3" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between text-[10px] text-slate-400 mb-1" }, /* @__PURE__ */ import_react.default.createElement("span", null, "Scan Sensitivity"), /* @__PURE__ */ import_react.default.createElement("span", null, Math.round(sensitivity * 100), "%")), /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "range",
@@ -804,7 +837,7 @@ ${url}`);
         onChange: (e) => setSensitivity(parseFloat(e.target.value)),
         className: "w-full h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer"
       }
-    ))), /* @__PURE__ */ React.createElement("div", { className: "bg-slate-800 p-3 rounded border border-slate-700" }, /* @__PURE__ */ React.createElement("h4", { className: "font-bold text-white mb-2" }, "Responsive Simulator"), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-2 mb-2" }, /* @__PURE__ */ React.createElement("button", { onClick: () => setSimulatorMode("mobile"), className: "bg-slate-700 hover:bg-slate-600 text-white py-1 rounded text-[10px]" }, "\u{1F4F1} Mobile"), /* @__PURE__ */ React.createElement("button", { onClick: () => setSimulatorMode("tablet"), className: "bg-slate-700 hover:bg-slate-600 text-white py-1 rounded text-[10px]" }, "\u{1F4F2} Tablet"), /* @__PURE__ */ React.createElement("button", { onClick: () => setSimulatorMode("desktop"), className: "bg-slate-700 hover:bg-slate-600 text-white py-1 rounded text-[10px]" }, "\u{1F4BB} Desktop"), /* @__PURE__ */ React.createElement("button", { onClick: () => setSimulatorMode("auto"), className: "bg-purple-700 hover:bg-purple-600 text-white py-1 rounded text-[10px]" }, "\u{1F504} Auto-Cycle"), /* @__PURE__ */ React.createElement("button", { onClick: runExtremeRatioTest, className: "col-span-2 bg-red-900 hover:bg-red-800 text-white py-1 rounded text-[10px] font-bold" }, "\u{1F525} Extreme Ratio Test"))), /* @__PURE__ */ React.createElement("div", { className: "bg-slate-800 p-3 rounded border border-slate-700" }, /* @__PURE__ */ React.createElement("h4", { className: "font-bold text-white mb-2" }, "Animation Speed"), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement("span", { className: "text-[10px] text-slate-400" }, "Slow"), /* @__PURE__ */ React.createElement(
+    ))), /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-800 p-3 rounded border border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("h4", { className: "font-bold text-white mb-2" }, "Responsive Simulator"), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-2 gap-2 mb-2" }, /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => setSimulatorMode("mobile"), className: "bg-slate-700 hover:bg-slate-600 text-white py-1 rounded text-[10px]" }, "\u{1F4F1} Mobile"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => setSimulatorMode("tablet"), className: "bg-slate-700 hover:bg-slate-600 text-white py-1 rounded text-[10px]" }, "\u{1F4F2} Tablet"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => setSimulatorMode("desktop"), className: "bg-slate-700 hover:bg-slate-600 text-white py-1 rounded text-[10px]" }, "\u{1F4BB} Desktop"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => setSimulatorMode("auto"), className: "bg-purple-700 hover:bg-purple-600 text-white py-1 rounded text-[10px]" }, "\u{1F504} Auto-Cycle"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: runExtremeRatioTest, className: "col-span-2 bg-red-900 hover:bg-red-800 text-white py-1 rounded text-[10px] font-bold" }, "\u{1F525} Extreme Ratio Test"))), /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-800 p-3 rounded border border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("h4", { className: "font-bold text-white mb-2" }, "Animation Speed"), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react.default.createElement("span", { className: "text-[10px] text-slate-400" }, "Slow"), /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "range",
@@ -815,7 +848,7 @@ ${url}`);
         onChange: (e) => setAnimationSpeed(parseFloat(e.target.value)),
         className: "flex-1 h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer"
       }
-    ), /* @__PURE__ */ React.createElement("span", { className: "text-[10px] text-slate-400" }, "Fast (", animationSpeed, "x)"))), scanResults.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between items-center" }, /* @__PURE__ */ React.createElement("h5", { className: "font-bold text-slate-300" }, "Issues Found (", scanResults.length, ")"), /* @__PURE__ */ React.createElement("button", { onClick: () => setScanResults([]), className: "text-[10px] text-slate-500 hover:text-white" }, "Clear")), scanResults.map((issue, i) => /* @__PURE__ */ React.createElement("div", { key: i, className: "bg-slate-800/50 p-2 rounded border border-red-500/20 hover:border-red-500/50" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between" }, /* @__PURE__ */ React.createElement("span", { className: "uppercase text-[9px] font-bold text-red-400 bg-red-900/20 px-1 rounded" }, issue.type), /* @__PURE__ */ React.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement("span", { className: "text-[10px] text-slate-400" }, "Fast (", animationSpeed, "x)"))), scanResults.length > 0 && /* @__PURE__ */ import_react.default.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between items-center" }, /* @__PURE__ */ import_react.default.createElement("h5", { className: "font-bold text-slate-300" }, "Issues Found (", scanResults.length, ")"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => setScanResults([]), className: "text-[10px] text-slate-500 hover:text-white" }, "Clear")), scanResults.map((issue, i) => /* @__PURE__ */ import_react.default.createElement("div", { key: i, className: "bg-slate-800/50 p-2 rounded border border-red-500/20 hover:border-red-500/50" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between" }, /* @__PURE__ */ import_react.default.createElement("span", { className: "uppercase text-[9px] font-bold text-red-400 bg-red-900/20 px-1 rounded" }, issue.type), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => {
@@ -826,14 +859,14 @@ ${url}`);
         className: "text-[9px] text-indigo-400 hover:underline"
       },
       "Locate"
-    ), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => applyAutoFix(issue),
         className: "text-[9px] text-green-400 hover:underline font-bold"
       },
       "Auto-Fix"
-    ), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => {
@@ -844,10 +877,10 @@ ${url}`);
         className: "text-[9px] text-slate-500 hover:text-slate-300"
       },
       "Ignore"
-    ))), /* @__PURE__ */ React.createElement("p", { className: "text-[10px] text-slate-300 mt-1" }, issue.message)))), appliedFixes.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "mt-4 pt-4 border-t border-slate-700" }, /* @__PURE__ */ React.createElement("h5", { className: "font-bold text-green-400 mb-2" }, "Applied Fixes (Session)"), /* @__PURE__ */ React.createElement("div", { className: "space-y-2" }, appliedFixes.map((fix) => /* @__PURE__ */ React.createElement("div", { key: fix.id, className: "bg-green-900/20 p-2 rounded border border-green-500/30" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between items-start" }, /* @__PURE__ */ React.createElement("div", { className: "text-[10px] text-green-200" }, "Fixed ", /* @__PURE__ */ React.createElement("b", null, fix.issue.type), " on ", fix.issue.el.tagName), /* @__PURE__ */ React.createElement("button", { onClick: fix.revert, className: "text-[9px] text-red-300 hover:text-white bg-red-900/50 px-1 rounded" }, "Revert")), /* @__PURE__ */ React.createElement("div", { className: "flex gap-2 mt-1" }, /* @__PURE__ */ React.createElement("code", { className: "text-[9px] font-mono bg-black/30 px-1 rounded text-slate-300 flex-1 truncate" }, fix.css), /* @__PURE__ */ React.createElement("button", { onClick: () => navigator.clipboard.writeText(fix.css), className: "text-[9px] text-blue-300 hover:text-white" }, "Copy CSS")))))), ignoredIssues.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "mt-4 pt-4 border-t border-slate-700" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between items-center" }, /* @__PURE__ */ React.createElement("span", { className: "text-[10px] text-slate-500" }, "Ignored Issues: ", ignoredIssues.length), /* @__PURE__ */ React.createElement("button", { onClick: () => setIgnoredIssues([]), className: "text-[10px] text-red-400 hover:text-red-300" }, "Reset Ignored")))), simulatorMode && /* @__PURE__ */ React.createElement("div", { className: "fixed inset-0 z-[10001] bg-black/90 flex flex-col" }, /* @__PURE__ */ React.createElement("div", { className: "h-10 bg-slate-900 border-b border-slate-700 flex items-center justify-between px-4" }, /* @__PURE__ */ React.createElement("span", { className: "font-bold text-white" }, "Responsive Simulator: ", simulatorMode === "custom" ? customSimSize ? `${customSimSize.w}x${customSimSize.h}` : "Custom" : simulatorMode), /* @__PURE__ */ React.createElement("button", { onClick: () => {
+    ))), /* @__PURE__ */ import_react.default.createElement("p", { className: "text-[10px] text-slate-300 mt-1" }, issue.message)))), appliedFixes.length > 0 && /* @__PURE__ */ import_react.default.createElement("div", { className: "mt-4 pt-4 border-t border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("h5", { className: "font-bold text-green-400 mb-2" }, "Applied Fixes (Session)"), /* @__PURE__ */ import_react.default.createElement("div", { className: "space-y-2" }, appliedFixes.map((fix) => /* @__PURE__ */ import_react.default.createElement("div", { key: fix.id, className: "bg-green-900/20 p-2 rounded border border-green-500/30" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between items-start" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "text-[10px] text-green-200" }, "Fixed ", /* @__PURE__ */ import_react.default.createElement("b", null, fix.issue.type), " on ", fix.issue.el.tagName), /* @__PURE__ */ import_react.default.createElement("button", { onClick: fix.revert, className: "text-[9px] text-red-300 hover:text-white bg-red-900/50 px-1 rounded" }, "Revert")), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex gap-2 mt-1" }, /* @__PURE__ */ import_react.default.createElement("code", { className: "text-[9px] font-mono bg-black/30 px-1 rounded text-slate-300 flex-1 truncate" }, fix.css), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => navigator.clipboard.writeText(fix.css), className: "text-[9px] text-blue-300 hover:text-white" }, "Copy CSS")))))), ignoredIssues.length > 0 && /* @__PURE__ */ import_react.default.createElement("div", { className: "mt-4 pt-4 border-t border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between items-center" }, /* @__PURE__ */ import_react.default.createElement("span", { className: "text-[10px] text-slate-500" }, "Ignored Issues: ", ignoredIssues.length), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => setIgnoredIssues([]), className: "text-[10px] text-red-400 hover:text-red-300" }, "Reset Ignored")))), simulatorMode && /* @__PURE__ */ import_react.default.createElement("div", { className: "fixed inset-0 z-[10001] bg-black/90 flex flex-col" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "h-10 bg-slate-900 border-b border-slate-700 flex items-center justify-between px-4" }, /* @__PURE__ */ import_react.default.createElement("span", { className: "font-bold text-white" }, "Responsive Simulator: ", simulatorMode === "custom" ? customSimSize ? `${customSimSize.w}x${customSimSize.h}` : "Custom" : simulatorMode), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => {
       setSimulatorMode(null);
       setCustomSimSize(null);
-    }, className: "text-slate-400 hover:text-white" }, "\u2715 Close")), /* @__PURE__ */ React.createElement("div", { className: "flex-1 flex items-center justify-center p-4 overflow-hidden" }, /* @__PURE__ */ React.createElement(
+    }, className: "text-slate-400 hover:text-white" }, "\u2715 Close")), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex-1 flex items-center justify-center p-4 overflow-hidden" }, /* @__PURE__ */ import_react.default.createElement(
       "iframe",
       {
         src: `${window.location.href}${window.location.href.includes("?") ? "&" : "?"}ui_debugger_ignore=true`,
@@ -858,16 +891,16 @@ ${url}`);
           transform: `scale(${simScale})`
         }
       }
-    )), /* @__PURE__ */ React.createElement("div", { className: "h-12 bg-slate-900 border-t border-slate-700 flex items-center justify-center gap-4" }, /* @__PURE__ */ React.createElement("button", { onClick: () => {
+    )), /* @__PURE__ */ import_react.default.createElement("div", { className: "h-12 bg-slate-900 border-t border-slate-700 flex items-center justify-center gap-4" }, /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => {
       setSimulatorMode("mobile");
       setCustomSimSize(null);
-    }, className: `px-3 py-1 rounded ${simulatorMode === "mobile" ? "bg-indigo-600" : "bg-slate-700"}` }, "Mobile"), /* @__PURE__ */ React.createElement("button", { onClick: () => {
+    }, className: `px-3 py-1 rounded ${simulatorMode === "mobile" ? "bg-indigo-600" : "bg-slate-700"}` }, "Mobile"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => {
       setSimulatorMode("tablet");
       setCustomSimSize(null);
-    }, className: `px-3 py-1 rounded ${simulatorMode === "tablet" ? "bg-indigo-600" : "bg-slate-700"}` }, "Tablet"), /* @__PURE__ */ React.createElement("button", { onClick: () => {
+    }, className: `px-3 py-1 rounded ${simulatorMode === "tablet" ? "bg-indigo-600" : "bg-slate-700"}` }, "Tablet"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => {
       setSimulatorMode("desktop");
       setCustomSimSize(null);
-    }, className: `px-3 py-1 rounded ${simulatorMode === "desktop" ? "bg-indigo-600" : "bg-slate-700"}` }, "Desktop"), /* @__PURE__ */ React.createElement("div", { className: "w-px h-6 bg-slate-700 mx-2" }), /* @__PURE__ */ React.createElement("input", { type: "range", min: "0.2", max: "1.5", step: "0.1", value: simScale, onChange: (e) => setSimScale(e.target.value), className: "w-24", title: "Zoom" }))), activeTab === "design" && /* @__PURE__ */ React.createElement("div", { className: "space-y-4" }, !selectedElement ? /* @__PURE__ */ React.createElement("div", { className: "text-center text-slate-500 py-10" }, /* @__PURE__ */ React.createElement("p", { className: "mb-2" }, "\u{1F446} Click any element on the page to edit it."), /* @__PURE__ */ React.createElement("p", { className: "text-[10px]" }, "You can change text, colors, spacing, and position.")) : /* @__PURE__ */ React.createElement("div", { className: "space-y-3" }, /* @__PURE__ */ React.createElement("div", { className: "bg-slate-800 p-2 rounded border border-indigo-500/50" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between items-start mb-1" }, /* @__PURE__ */ React.createElement("span", { className: "font-bold text-indigo-400 text-xs" }, selectedElement.tagName.toLowerCase()), /* @__PURE__ */ React.createElement("button", { onClick: () => setSelectedElement(null), className: "text-slate-500 hover:text-white" }, "\u2715")), /* @__PURE__ */ React.createElement("div", { className: "font-mono text-[10px] text-slate-400 break-all" }, selectedElement.className && `.${selectedElement.className.split(" ").join(".")}`)), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ React.createElement(
+    }, className: `px-3 py-1 rounded ${simulatorMode === "desktop" ? "bg-indigo-600" : "bg-slate-700"}` }, "Desktop"), /* @__PURE__ */ import_react.default.createElement("div", { className: "w-px h-6 bg-slate-700 mx-2" }), /* @__PURE__ */ import_react.default.createElement("input", { type: "range", min: "0.2", max: "1.5", step: "0.1", value: simScale, onChange: (e) => setSimScale(e.target.value), className: "w-24", title: "Zoom" }))), activeTab === "design" && /* @__PURE__ */ import_react.default.createElement("div", { className: "space-y-4" }, !selectedElement ? /* @__PURE__ */ import_react.default.createElement("div", { className: "text-center text-slate-500 py-10" }, /* @__PURE__ */ import_react.default.createElement("p", { className: "mb-2" }, "\u{1F446} Click any element on the page to edit it."), /* @__PURE__ */ import_react.default.createElement("p", { className: "text-[10px]" }, "You can change text, colors, spacing, and position.")) : /* @__PURE__ */ import_react.default.createElement("div", { className: "space-y-3" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-800 p-2 rounded border border-indigo-500/50" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between items-start mb-1" }, /* @__PURE__ */ import_react.default.createElement("span", { className: "font-bold text-indigo-400 text-xs" }, selectedElement.tagName.toLowerCase()), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => setSelectedElement(null), className: "text-slate-500 hover:text-white" }, "\u2715")), /* @__PURE__ */ import_react.default.createElement("div", { className: "font-mono text-[10px] text-slate-400 break-all" }, selectedElement.className && `.${selectedElement.className.split(" ").join(".")}`)), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => {
@@ -877,7 +910,7 @@ ${url}`);
         className: "bg-slate-700 hover:bg-slate-600 text-white py-1 rounded text-[10px]"
       },
       "\u270F\uFE0F Edit Text"
-    ), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => {
@@ -887,7 +920,7 @@ ${url}`);
         className: "bg-slate-700 hover:bg-red-600 text-white py-1 rounded text-[10px]"
       },
       "\u{1F441}\uFE0F Hide Element"
-    ), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => {
@@ -900,7 +933,7 @@ ${url}`);
         className: "bg-slate-700 hover:bg-green-600 text-white py-1 rounded text-[10px]"
       },
       "\u{1F4CB} Duplicate"
-    ), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => {
@@ -910,21 +943,21 @@ ${url}`);
         className: "bg-red-900/50 hover:bg-red-800 text-red-200 py-1 rounded text-[10px]"
       },
       "\u{1F5D1}\uFE0F Delete"
-    ), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => revertElementChanges(selectedElement),
         className: "bg-slate-700 hover:bg-yellow-600 text-white py-1 rounded text-[10px]"
       },
       "\u21A9\uFE0F Revert"
-    ), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => makeResponsive(selectedElement),
         className: "bg-slate-700 hover:bg-blue-600 text-white py-1 rounded text-[10px]"
       },
       "\u{1F4F1} Responsive"
-    )), /* @__PURE__ */ React.createElement("div", { className: "bg-slate-800 p-2 rounded border border-slate-700 space-y-2" }, /* @__PURE__ */ React.createElement("h5", { className: "font-bold text-slate-400 text-[10px] uppercase" }, "Styles"), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Text Color"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-1" }, /* @__PURE__ */ React.createElement(
+    )), /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-800 p-2 rounded border border-slate-700 space-y-2" }, /* @__PURE__ */ import_react.default.createElement("h5", { className: "font-bold text-slate-400 text-[10px] uppercase" }, "Styles"), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Text Color"), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex gap-1" }, /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "color",
@@ -932,7 +965,7 @@ ${url}`);
         value: window.getComputedStyle(selectedElement).color,
         onChange: (e) => selectedElement.style.color = e.target.value
       }
-    ), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "text",
@@ -940,14 +973,14 @@ ${url}`);
         className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
         onChange: (e) => selectedElement.style.color = e.target.value
       }
-    ))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Background"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-1" }, /* @__PURE__ */ React.createElement(
+    ))), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Background"), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex gap-1" }, /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "color",
         className: "w-6 h-6 bg-transparent border-0 p-0 cursor-pointer",
         onChange: (e) => selectedElement.style.backgroundColor = e.target.value
       }
-    ), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "text",
@@ -955,7 +988,7 @@ ${url}`);
         className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
         onChange: (e) => selectedElement.style.backgroundColor = e.target.value
       }
-    )))), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Margin (px)"), /* @__PURE__ */ React.createElement(
+    )))), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Margin (px)"), /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "text",
@@ -963,7 +996,7 @@ ${url}`);
         className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
         onChange: (e) => selectedElement.style.margin = e.target.value
       }
-    )), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Padding (px)"), /* @__PURE__ */ React.createElement(
+    )), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Padding (px)"), /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "text",
@@ -971,7 +1004,7 @@ ${url}`);
         className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
         onChange: (e) => selectedElement.style.padding = e.target.value
       }
-    ))), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Font Size (px)"), /* @__PURE__ */ React.createElement(
+    ))), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Font Size (px)"), /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "number",
@@ -979,18 +1012,18 @@ ${url}`);
         className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
         onChange: (e) => selectedElement.style.fontSize = `${e.target.value}px`
       }
-    )), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Font Weight"), /* @__PURE__ */ React.createElement(
+    )), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Font Weight"), /* @__PURE__ */ import_react.default.createElement(
       "select",
       {
         className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
         onChange: (e) => selectedElement.style.fontWeight = e.target.value
       },
-      /* @__PURE__ */ React.createElement("option", { value: "" }, "Select..."),
-      /* @__PURE__ */ React.createElement("option", { value: "100" }, "Thin (100)"),
-      /* @__PURE__ */ React.createElement("option", { value: "400" }, "Normal (400)"),
-      /* @__PURE__ */ React.createElement("option", { value: "700" }, "Bold (700)"),
-      /* @__PURE__ */ React.createElement("option", { value: "900" }, "Black (900)")
-    ))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Classes"), /* @__PURE__ */ React.createElement(
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "" }, "Select..."),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "100" }, "Thin (100)"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "400" }, "Normal (400)"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "700" }, "Bold (700)"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "900" }, "Black (900)")
+    ))), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Classes"), /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "text",
@@ -1001,19 +1034,19 @@ ${url}`);
           if (e.key === "Enter") selectedElement.className = e.target.value;
         }
       }
-    )), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Display"), /* @__PURE__ */ React.createElement(
+    )), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Display"), /* @__PURE__ */ import_react.default.createElement(
       "select",
       {
         className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
         onChange: (e) => selectedElement.style.display = e.target.value
       },
-      /* @__PURE__ */ React.createElement("option", { value: "" }, "Select..."),
-      /* @__PURE__ */ React.createElement("option", { value: "block" }, "Block"),
-      /* @__PURE__ */ React.createElement("option", { value: "flex" }, "Flex"),
-      /* @__PURE__ */ React.createElement("option", { value: "grid" }, "Grid"),
-      /* @__PURE__ */ React.createElement("option", { value: "inline-block" }, "Inline Block"),
-      /* @__PURE__ */ React.createElement("option", { value: "none" }, "None")
-    )), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Border Radius"), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement(
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "" }, "Select..."),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "block" }, "Block"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "flex" }, "Flex"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "grid" }, "Grid"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "inline-block" }, "Inline Block"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "none" }, "None")
+    )), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Border Radius"), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "range",
@@ -1022,7 +1055,7 @@ ${url}`);
         className: "flex-1 h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer",
         onChange: (e) => selectedElement.style.borderRadius = `${e.target.value}px`
       }
-    ), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "text",
@@ -1030,7 +1063,7 @@ ${url}`);
         className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-12",
         onChange: (e) => selectedElement.style.borderRadius = e.target.value
       }
-    ))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Box Shadow"), /* @__PURE__ */ React.createElement(
+    ))), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Box Shadow"), /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "text",
@@ -1038,7 +1071,7 @@ ${url}`);
         className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
         onChange: (e) => selectedElement.style.boxShadow = e.target.value
       }
-    )), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Opacity"), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement(
+    )), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Opacity"), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "range",
@@ -1049,7 +1082,7 @@ ${url}`);
         className: "flex-1 h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer",
         onChange: (e) => selectedElement.style.opacity = e.target.value
       }
-    ), /* @__PURE__ */ React.createElement("span", { className: "text-[9px] text-slate-400 w-6 text-right" }, selectedElement.style.opacity || window.getComputedStyle(selectedElement).opacity))), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Scale"), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement("span", { className: "text-[9px] text-slate-400 w-6 text-right" }, selectedElement.style.opacity || window.getComputedStyle(selectedElement).opacity))), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Scale"), /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "number",
@@ -1066,7 +1099,7 @@ ${url}`);
           }
         }
       }
-    )), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Rotate (deg)"), /* @__PURE__ */ React.createElement(
+    )), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Rotate (deg)"), /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "number",
@@ -1082,27 +1115,27 @@ ${url}`);
           }
         }
       }
-    ))), window.getComputedStyle(selectedElement).display === "flex" && /* @__PURE__ */ React.createElement("div", { className: "bg-slate-900/50 p-1 rounded" }, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block mb-1" }, "Flex Alignment"), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-1" }, /* @__PURE__ */ React.createElement(
+    ))), window.getComputedStyle(selectedElement).display === "flex" && /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-900/50 p-1 rounded" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block mb-1" }, "Flex Alignment"), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-2 gap-1" }, /* @__PURE__ */ import_react.default.createElement(
       "select",
       {
         className: "bg-slate-800 border border-slate-600 rounded px-1 text-[9px]",
         onChange: (e) => selectedElement.style.justifyContent = e.target.value
       },
-      /* @__PURE__ */ React.createElement("option", { value: "flex-start" }, "Justify: Start"),
-      /* @__PURE__ */ React.createElement("option", { value: "center" }, "Justify: Center"),
-      /* @__PURE__ */ React.createElement("option", { value: "flex-end" }, "Justify: End"),
-      /* @__PURE__ */ React.createElement("option", { value: "space-between" }, "Justify: Between")
-    ), /* @__PURE__ */ React.createElement(
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "flex-start" }, "Justify: Start"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "center" }, "Justify: Center"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "flex-end" }, "Justify: End"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "space-between" }, "Justify: Between")
+    ), /* @__PURE__ */ import_react.default.createElement(
       "select",
       {
         className: "bg-slate-800 border border-slate-600 rounded px-1 text-[9px]",
         onChange: (e) => selectedElement.style.alignItems = e.target.value
       },
-      /* @__PURE__ */ React.createElement("option", { value: "stretch" }, "Align: Stretch"),
-      /* @__PURE__ */ React.createElement("option", { value: "center" }, "Align: Center"),
-      /* @__PURE__ */ React.createElement("option", { value: "flex-start" }, "Align: Start"),
-      /* @__PURE__ */ React.createElement("option", { value: "flex-end" }, "Align: End")
-    ))), /* @__PURE__ */ React.createElement("div", { className: "bg-slate-900/30 p-2 rounded border border-slate-700/50" }, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block mb-1 font-bold" }, "Computed Final Values"), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-x-2 gap-y-1 text-[9px] font-mono text-slate-400" }, /* @__PURE__ */ React.createElement("div", null, "W: ", selectedElement.getBoundingClientRect().width.toFixed(1), "px"), /* @__PURE__ */ React.createElement("div", null, "H: ", selectedElement.getBoundingClientRect().height.toFixed(1), "px"), /* @__PURE__ */ React.createElement("div", null, "Col: ", /* @__PURE__ */ React.createElement("span", { style: { color: window.getComputedStyle(selectedElement).color } }, "\u25A0"), " ", window.getComputedStyle(selectedElement).color), /* @__PURE__ */ React.createElement("div", null, "Bg: ", /* @__PURE__ */ React.createElement("span", { style: { color: window.getComputedStyle(selectedElement).backgroundColor } }, "\u25A0"), " ", window.getComputedStyle(selectedElement).backgroundColor), /* @__PURE__ */ React.createElement("div", null, "Font: ", window.getComputedStyle(selectedElement).fontFamily.split(",")[0]), /* @__PURE__ */ React.createElement("div", null, "Size: ", window.getComputedStyle(selectedElement).fontSize))), /* @__PURE__ */ React.createElement("div", { className: "pt-2 border-t border-slate-700" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between items-center mb-1" }, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 font-bold" }, "Export Code"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-1" }, /* @__PURE__ */ React.createElement(
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "stretch" }, "Align: Stretch"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "center" }, "Align: Center"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "flex-start" }, "Align: Start"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "flex-end" }, "Align: End")
+    ))), /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-900/30 p-2 rounded border border-slate-700/50" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block mb-1 font-bold" }, "Computed Final Values"), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-2 gap-x-2 gap-y-1 text-[9px] font-mono text-slate-400" }, /* @__PURE__ */ import_react.default.createElement("div", null, "W: ", selectedElement.getBoundingClientRect().width.toFixed(1), "px"), /* @__PURE__ */ import_react.default.createElement("div", null, "H: ", selectedElement.getBoundingClientRect().height.toFixed(1), "px"), /* @__PURE__ */ import_react.default.createElement("div", null, "Col: ", /* @__PURE__ */ import_react.default.createElement("span", { style: { color: window.getComputedStyle(selectedElement).color } }, "\u25A0"), " ", window.getComputedStyle(selectedElement).color), /* @__PURE__ */ import_react.default.createElement("div", null, "Bg: ", /* @__PURE__ */ import_react.default.createElement("span", { style: { color: window.getComputedStyle(selectedElement).backgroundColor } }, "\u25A0"), " ", window.getComputedStyle(selectedElement).backgroundColor), /* @__PURE__ */ import_react.default.createElement("div", null, "Font: ", window.getComputedStyle(selectedElement).fontFamily.split(",")[0]), /* @__PURE__ */ import_react.default.createElement("div", null, "Size: ", window.getComputedStyle(selectedElement).fontSize))), /* @__PURE__ */ import_react.default.createElement("div", { className: "pt-2 border-t border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between items-center mb-1" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 font-bold" }, "Export Code"), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex gap-1" }, /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => {
@@ -1113,7 +1146,7 @@ ${url}`);
         className: "bg-slate-700 hover:bg-slate-600 text-white px-2 py-0.5 rounded text-[9px]"
       },
       "Copy HTML"
-    ), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => {
@@ -1134,7 +1167,7 @@ ${url}`);
         className: "bg-slate-700 hover:bg-slate-600 text-white px-2 py-0.5 rounded text-[9px]"
       },
       "Copy JSX"
-    ))), /* @__PURE__ */ React.createElement("div", { className: "bg-slate-900/50 p-2 rounded border border-slate-700/50 mb-2" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between items-center mb-1" }, /* @__PURE__ */ React.createElement("span", { className: "text-[9px] text-blue-400 font-bold" }, "Tailwind (Approx)"), /* @__PURE__ */ React.createElement(
+    ))), /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-900/50 p-2 rounded border border-slate-700/50 mb-2" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between items-center mb-1" }, /* @__PURE__ */ import_react.default.createElement("span", { className: "text-[9px] text-blue-400 font-bold" }, "Tailwind (Approx)"), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => {
@@ -1158,7 +1191,7 @@ ${url}`);
         className: "text-[9px] text-slate-500 hover:text-white"
       },
       "Copy"
-    )), /* @__PURE__ */ React.createElement("div", { className: "text-[9px] font-mono text-slate-400 break-all" }, (() => {
+    )), /* @__PURE__ */ import_react.default.createElement("div", { className: "text-[9px] font-mono text-slate-400 break-all" }, (() => {
       const s = window.getComputedStyle(selectedElement);
       const classes = [];
       if (s.display === "flex") classes.push("flex");
@@ -1173,7 +1206,7 @@ ${url}`);
       if (s.margin !== "0px") classes.push(`m-[${s.margin}]`);
       if (s.borderRadius !== "0px") classes.push(`rounded-[${s.borderRadius}]`);
       return classes.join(" ") || "No styles detected";
-    })())), /* @__PURE__ */ React.createElement("div", { className: "flex justify-between items-center mb-1" }, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 font-bold" }, "Generated CSS"), /* @__PURE__ */ React.createElement(
+    })())), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between items-center mb-1" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 font-bold" }, "Generated CSS"), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => {
@@ -1183,14 +1216,14 @@ ${url}`);
         className: "bg-green-700 hover:bg-green-600 text-white px-2 py-0.5 rounded text-[9px]"
       },
       "\u{1F4BE} Save to File"
-    )), /* @__PURE__ */ React.createElement(
+    )), /* @__PURE__ */ import_react.default.createElement(
       "textarea",
       {
         readOnly: true,
         className: "w-full h-16 bg-black/50 border border-slate-700 rounded p-1 text-[9px] font-mono text-green-300",
         value: selectedElement.getAttribute("style") || ""
       }
-    ))), /* @__PURE__ */ React.createElement("div", { className: "bg-slate-800 p-2 rounded border border-slate-700" }, /* @__PURE__ */ React.createElement("label", { className: "flex items-center gap-2 cursor-pointer" }, /* @__PURE__ */ React.createElement(
+    ))), /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-800 p-2 rounded border border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "flex items-center gap-2 cursor-pointer" }, /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "checkbox",
@@ -1229,7 +1262,7 @@ ${url}`);
           }
         }
       }
-    ), /* @__PURE__ */ React.createElement("span", { className: "text-xs font-bold text-white" }, "Enable Dragging")), /* @__PURE__ */ React.createElement("p", { className: "text-[9px] text-slate-500 mt-1" }, "Note: Dragging uses `transform: translate`. It resets on refresh.")))), activeTab === "rules" && /* @__PURE__ */ React.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ React.createElement("p", { className: "text-[10px] text-slate-500 uppercase tracking-wider mb-2" }, "Active Targeted Rules"), targetedRules.length === 0 && /* @__PURE__ */ React.createElement("div", { className: "text-center text-slate-600 py-8 italic" }, "No targeted rules active."), targetedRules.map((rule, i) => /* @__PURE__ */ React.createElement("div", { key: i, className: "bg-slate-800 p-2 rounded border border-red-500/30 flex justify-between items-center" }, /* @__PURE__ */ React.createElement("div", { className: "overflow-hidden" }, /* @__PURE__ */ React.createElement("div", { className: "font-mono text-[10px] text-slate-300 truncate", title: rule.selector }, rule.selector), /* @__PURE__ */ React.createElement("div", { className: "text-[9px] text-red-400 font-bold" }, rule.property, ": ", rule.value)), /* @__PURE__ */ React.createElement("button", { onClick: () => removeTargetedRule(i), className: "text-slate-500 hover:text-white px-2" }, "\u2715")))), activeTab === "settings" && /* @__PURE__ */ React.createElement("div", { className: "space-y-4 p-2" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", { className: "font-bold text-slate-400 mb-2" }, "Theme"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-2" }, Object.keys(THEMES).map((t) => /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement("span", { className: "text-xs font-bold text-white" }, "Enable Dragging")), /* @__PURE__ */ import_react.default.createElement("p", { className: "text-[9px] text-slate-500 mt-1" }, "Note: Dragging uses `transform: translate`. It resets on refresh.")))), activeTab === "rules" && /* @__PURE__ */ import_react.default.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ import_react.default.createElement("p", { className: "text-[10px] text-slate-500 uppercase tracking-wider mb-2" }, "Active Targeted Rules"), targetedRules.length === 0 && /* @__PURE__ */ import_react.default.createElement("div", { className: "text-center text-slate-600 py-8 italic" }, "No targeted rules active."), targetedRules.map((rule, i) => /* @__PURE__ */ import_react.default.createElement("div", { key: i, className: "bg-slate-800 p-2 rounded border border-red-500/30 flex justify-between items-center" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "overflow-hidden" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "font-mono text-[10px] text-slate-300 truncate", title: rule.selector }, rule.selector), /* @__PURE__ */ import_react.default.createElement("div", { className: "text-[9px] text-red-400 font-bold" }, rule.property, ": ", rule.value)), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => removeTargetedRule(i), className: "text-slate-500 hover:text-white px-2" }, "\u2715")))), activeTab === "settings" && /* @__PURE__ */ import_react.default.createElement("div", { className: "space-y-4 p-2" }, /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("h4", { className: "font-bold text-slate-400 mb-2" }, "Theme"), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex gap-2" }, Object.keys(THEMES).map((t) => /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         key: t,
@@ -1237,7 +1270,7 @@ ${url}`);
         className: `px-3 py-1 rounded capitalize text-xs ${theme === t ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-300"}`
       },
       t
-    )))), /* @__PURE__ */ React.createElement("div", { className: "pt-4 border-t border-slate-700" }, /* @__PURE__ */ React.createElement("h4", { className: "font-bold text-slate-400 mb-2" }, "Event Tracking"), /* @__PURE__ */ React.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ React.createElement("label", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement("input", { type: "checkbox", checked: trackHover, onChange: (e) => setTrackHover(e.target.checked) }), " Track Hover"), /* @__PURE__ */ React.createElement("label", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement("input", { type: "checkbox", checked: trackClick, onChange: (e) => setTrackClick(e.target.checked) }), " Track Click"), /* @__PURE__ */ React.createElement("label", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement("input", { type: "checkbox", checked: trackFocus, onChange: (e) => setTrackFocus(e.target.checked) }), " Track Focus"), /* @__PURE__ */ React.createElement("label", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement("input", { type: "checkbox", checked: trackSelect, onChange: (e) => setTrackSelect(e.target.checked) }), " Track Selection"))), /* @__PURE__ */ React.createElement("div", { className: "pt-4 border-t border-slate-700" }, /* @__PURE__ */ React.createElement("h4", { className: "font-bold text-slate-400 mb-2" }, "Auto-Save Logs"), /* @__PURE__ */ React.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ React.createElement("label", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement("input", { type: "checkbox", checked: autoSave, onChange: (e) => setAutoSave(e.target.checked) }), "Enable Auto-Save (Every 30s)"), /* @__PURE__ */ React.createElement("div", { className: "flex flex-col gap-1" }, /* @__PURE__ */ React.createElement("label", { className: "text-[10px] text-slate-500" }, "Max Log Files to Keep"), /* @__PURE__ */ React.createElement(
+    )))), /* @__PURE__ */ import_react.default.createElement("div", { className: "pt-4 border-t border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("h4", { className: "font-bold text-slate-400 mb-2" }, "Event Tracking"), /* @__PURE__ */ import_react.default.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react.default.createElement("input", { type: "checkbox", checked: trackHover, onChange: (e) => setTrackHover(e.target.checked) }), " Track Hover"), /* @__PURE__ */ import_react.default.createElement("label", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react.default.createElement("input", { type: "checkbox", checked: trackClick, onChange: (e) => setTrackClick(e.target.checked) }), " Track Click"), /* @__PURE__ */ import_react.default.createElement("label", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react.default.createElement("input", { type: "checkbox", checked: trackFocus, onChange: (e) => setTrackFocus(e.target.checked) }), " Track Focus"), /* @__PURE__ */ import_react.default.createElement("label", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react.default.createElement("input", { type: "checkbox", checked: trackSelect, onChange: (e) => setTrackSelect(e.target.checked) }), " Track Selection"))), /* @__PURE__ */ import_react.default.createElement("div", { className: "pt-4 border-t border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("h4", { className: "font-bold text-slate-400 mb-2" }, "Auto-Save Logs"), /* @__PURE__ */ import_react.default.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react.default.createElement("input", { type: "checkbox", checked: autoSave, onChange: (e) => setAutoSave(e.target.checked) }), "Enable Auto-Save (Every 30s)"), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex flex-col gap-1" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[10px] text-slate-500" }, "Max Log Files to Keep"), /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
         type: "number",
@@ -1245,7 +1278,7 @@ ${url}`);
         onChange: (e) => setMaxLogs(Number(e.target.value)),
         className: "bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs w-20"
       }
-    )))), /* @__PURE__ */ React.createElement("div", { className: "pt-4 border-t border-slate-700" }, /* @__PURE__ */ React.createElement("h4", { className: "font-bold text-red-400 mb-2" }, "Danger Zone"), /* @__PURE__ */ React.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ React.createElement(
+    )))), /* @__PURE__ */ import_react.default.createElement("div", { className: "pt-4 border-t border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("h4", { className: "font-bold text-red-400 mb-2" }, "Danger Zone"), /* @__PURE__ */ import_react.default.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => {
@@ -1254,7 +1287,7 @@ ${url}`);
         className: "w-full bg-red-900/50 hover:bg-red-800 text-red-200 py-2 rounded text-xs font-bold border border-red-900"
       },
       "Reset All Settings"
-    ), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: () => {
@@ -1264,32 +1297,32 @@ ${url}`);
       },
       "Uninstall / Remove from Project"
     ))))),
-    toggles.ruler && rulerBox && /* @__PURE__ */ React.createElement(
+    toggles.ruler && rulerBox && /* @__PURE__ */ import_react.default.createElement(
       "div",
       {
         className: "fixed z-[9999] border-2 border-indigo-500 bg-indigo-500/10 pointer-events-none flex items-center justify-center",
         style: { left: rulerBox.x, top: rulerBox.y, width: rulerBox.w, height: rulerBox.h }
       },
-      /* @__PURE__ */ React.createElement("span", { className: "bg-indigo-600 text-white text-[10px] px-1 rounded shadow font-bold" }, Math.round(rulerBox.w), " x ", Math.round(rulerBox.h))
+      /* @__PURE__ */ import_react.default.createElement("span", { className: "bg-indigo-600 text-white text-[10px] px-1 rounded shadow font-bold" }, Math.round(rulerBox.w), " x ", Math.round(rulerBox.h))
     ),
-    toggles.outline && /* @__PURE__ */ React.createElement("style", null, `* { outline: none !important; }`),
-    toggles.shadow && /* @__PURE__ */ React.createElement("style", null, `* { box-shadow: none !important; }`),
-    toggles.ring && /* @__PURE__ */ React.createElement("style", null, `* { --tw-ring-color: transparent !important; --tw-ring-offset-width: 0px !important; box-shadow: none !important; }`),
-    toggles.border && /* @__PURE__ */ React.createElement("style", null, `* { border-color: transparent !important; }`),
-    toggles.selection && /* @__PURE__ */ React.createElement("style", null, `*::selection { background: transparent !important; }`),
-    toggles.tap && /* @__PURE__ */ React.createElement("style", null, `* { -webkit-tap-highlight-color: transparent !important; }`),
-    toggles.filter && /* @__PURE__ */ React.createElement("style", null, `* { filter: none !important; }`),
-    toggles.backdrop && /* @__PURE__ */ React.createElement("style", null, `* { backdrop-filter: none !important; }`),
-    toggles.transform && /* @__PURE__ */ React.createElement("style", null, `* { transform: none !important; }`),
-    toggles.background && /* @__PURE__ */ React.createElement("style", null, `* { background-color: transparent !important; background: none !important; }`),
-    toggles.layout && /* @__PURE__ */ React.createElement("style", null, `* { outline: 1px solid rgba(255, 0, 0, 0.2) !important; }`),
-    toggles.images && /* @__PURE__ */ React.createElement("style", null, `img { outline: 5px solid magenta !important; filter: grayscale(100%) !important; }`),
-    toggles.gridOverlay && /* @__PURE__ */ React.createElement("div", { className: "fixed inset-0 z-[9998] pointer-events-none", style: {
+    toggles.outline && /* @__PURE__ */ import_react.default.createElement("style", null, `* { outline: none !important; }`),
+    toggles.shadow && /* @__PURE__ */ import_react.default.createElement("style", null, `* { box-shadow: none !important; }`),
+    toggles.ring && /* @__PURE__ */ import_react.default.createElement("style", null, `* { --tw-ring-color: transparent !important; --tw-ring-offset-width: 0px !important; box-shadow: none !important; }`),
+    toggles.border && /* @__PURE__ */ import_react.default.createElement("style", null, `* { border-color: transparent !important; }`),
+    toggles.selection && /* @__PURE__ */ import_react.default.createElement("style", null, `*::selection { background: transparent !important; }`),
+    toggles.tap && /* @__PURE__ */ import_react.default.createElement("style", null, `* { -webkit-tap-highlight-color: transparent !important; }`),
+    toggles.filter && /* @__PURE__ */ import_react.default.createElement("style", null, `* { filter: none !important; }`),
+    toggles.backdrop && /* @__PURE__ */ import_react.default.createElement("style", null, `* { backdrop-filter: none !important; }`),
+    toggles.transform && /* @__PURE__ */ import_react.default.createElement("style", null, `* { transform: none !important; }`),
+    toggles.background && /* @__PURE__ */ import_react.default.createElement("style", null, `* { background-color: transparent !important; background: none !important; }`),
+    toggles.layout && /* @__PURE__ */ import_react.default.createElement("style", null, `* { outline: 1px solid rgba(255, 0, 0, 0.2) !important; }`),
+    toggles.images && /* @__PURE__ */ import_react.default.createElement("style", null, `img { outline: 5px solid magenta !important; filter: grayscale(100%) !important; }`),
+    toggles.gridOverlay && /* @__PURE__ */ import_react.default.createElement("div", { className: "fixed inset-0 z-[9998] pointer-events-none", style: {
       backgroundImage: "linear-gradient(to right, rgba(128,128,128,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(128,128,128,0.1) 1px, transparent 1px)",
       backgroundSize: "20px 20px"
     } }),
-    animationSpeed !== 1 && /* @__PURE__ */ React.createElement("style", null, `* { animation-duration: ${1 / animationSpeed}s !important; transition-duration: ${1 / animationSpeed}s !important; }`),
-    /* @__PURE__ */ React.createElement("style", null, targetedRules.map((r) => `${r.selector} { ${r.property}: ${r.value}; }`).join("\n"))
+    animationSpeed !== 1 && /* @__PURE__ */ import_react.default.createElement("style", null, `* { animation-duration: ${1 / animationSpeed}s !important; transition-duration: ${1 / animationSpeed}s !important; }`),
+    /* @__PURE__ */ import_react.default.createElement("style", null, targetedRules.map((r) => `${r.selector} { ${r.property}: ${r.value}; }`).join("\n"))
   );
 }
 if (typeof window !== "undefined") {
@@ -1300,8 +1333,8 @@ if (typeof window !== "undefined") {
       const div = document.createElement("div");
       div.id = rootId;
       document.body.appendChild(div);
-      const root = createRoot(div);
-      root.render(React.createElement(UIDebugger));
+      const root = (0, import_client.createRoot)(div);
+      root.render(import_react.default.createElement(UIDebugger));
       console.log("\u{1F680} UI Debugger Pro mounted automatically.");
     }
   };
@@ -1314,7 +1347,8 @@ if (typeof window !== "undefined") {
     }
   }
 }
-export {
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
   UIDebugger
-};
-//# sourceMappingURL=index.js.map
+});
+//# sourceMappingURL=index.cjs.map

@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { UIDebugger } from '../src/index';
+import { UIDebugger } from 'ui-debugger-pro';
 
 function App() {
   return (

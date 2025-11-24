@@ -1,3 +1,4 @@
+import { createRequire } from 'module'; const require = createRequire(import.meta.url);
 "use strict";
 var UIDebuggerPro = (() => {
   var __create = Object.create;
@@ -30741,8 +30742,8 @@ var UIDebuggerPro = (() => {
   __export(index_exports, {
     UIDebugger: () => UIDebugger
   });
-  var import_react = __toESM(require_react());
-  var import_client = __toESM(require_client());
+  var import_react = __toESM(require_react(), 1);
+  var import_client = __toESM(require_client(), 1);
   var SYMPTOMS = [
     { id: "glow", label: "Glowing / Shining", description: "Elements have a halo, fuzzy edge, or light emitting from them.", recommendedToggles: ["shadow", "filter", "ring"] },
     { id: "border", label: "Lines / Borders", description: "Sharp lines, rectangles, or outlines appear around elements.", recommendedToggles: ["outline", "border", "ring"] },
@@ -30802,13 +30803,54 @@ var UIDebuggerPro = (() => {
         // Design Mode (Edit Text)
         images: false,
         // Highlight Images
-        gridOverlay: false
+        gridOverlay: false,
         // New Grid Overlay
+        ruler: false
+        // Ruler Tool
       };
     });
     (0, import_react.useEffect)(() => {
       document.designMode = toggles.edit ? "on" : "off";
     }, [toggles.edit]);
+    const [rulerBox, setRulerBox] = (0, import_react.useState)(null);
+    (0, import_react.useEffect)(() => {
+      if (!toggles.ruler) {
+        setRulerBox(null);
+        return;
+      }
+      let startX = 0;
+      let startY = 0;
+      let isDrawing = false;
+      const onMouseDown = (e) => {
+        if (e.target.closest("#ui-debugger-pro-root")) return;
+        e.preventDefault();
+        isDrawing = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        setRulerBox({ x: startX, y: startY, w: 0, h: 0 });
+      };
+      const onMouseMove = (e) => {
+        if (!isDrawing) return;
+        const currentX = e.clientX;
+        const currentY = e.clientY;
+        const width = Math.abs(currentX - startX);
+        const height = Math.abs(currentY - startY);
+        const x = Math.min(currentX, startX);
+        const y = Math.min(currentY, startY);
+        setRulerBox({ x, y, w: width, h: height });
+      };
+      const onMouseUp = () => {
+        isDrawing = false;
+      };
+      document.addEventListener("mousedown", onMouseDown);
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+      return () => {
+        document.removeEventListener("mousedown", onMouseDown);
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+      };
+    }, [toggles.ruler]);
     const [animationSpeed, setAnimationSpeed] = (0, import_react.useState)(1);
     const [targetedRules, setTargetedRules] = (0, import_react.useState)(() => {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -30840,6 +30882,7 @@ var UIDebuggerPro = (() => {
     const configRef = (0, import_react.useRef)({ trackHover, trackClick, trackFocus, trackSelect });
     const historyRef = (0, import_react.useRef)(history);
     const activeTabRef = (0, import_react.useRef)(activeTab);
+    const originalStylesRef = (0, import_react.useRef)(/* @__PURE__ */ new Map());
     (0, import_react.useEffect)(() => {
       isPausedRef.current = isPaused;
     }, [isPaused]);
@@ -30852,6 +30895,11 @@ var UIDebuggerPro = (() => {
     (0, import_react.useEffect)(() => {
       activeTabRef.current = activeTab;
     }, [activeTab]);
+    (0, import_react.useEffect)(() => {
+      if (selectedElement && !originalStylesRef.current.has(selectedElement)) {
+        originalStylesRef.current.set(selectedElement, selectedElement.style.cssText);
+      }
+    }, [selectedElement]);
     (0, import_react.useEffect)(() => {
       const config = {
         toggles,
@@ -30932,6 +30980,41 @@ var UIDebuggerPro = (() => {
         }
       };
       setAppliedFixes((prev) => [...prev, fixRecord]);
+    };
+    const revertElementChanges = (el) => {
+      if (!el) return;
+      if (originalStylesRef.current.has(el)) {
+        el.style.cssText = originalStylesRef.current.get(el);
+        alert("Element styles reverted to original!");
+      } else {
+        el.style.cssText = "";
+        alert("Element styles reset (no original found)!");
+      }
+    };
+    const injectScrollbarStyles = () => {
+      const id = "ui-debugger-scrollbar-styles";
+      if (document.getElementById(id)) {
+        alert("Scrollbar styles already injected.");
+        return;
+      }
+      const style = document.createElement("style");
+      style.id = id;
+      style.textContent = `
+      ::-webkit-scrollbar { width: 12px; height: 12px; }
+      ::-webkit-scrollbar-track { background: #f1f1f1; }
+      ::-webkit-scrollbar-thumb { background: #888; border-radius: 6px; border: 3px solid #f1f1f1; }
+      ::-webkit-scrollbar-thumb:hover { background: #555; }
+    `;
+      document.head.appendChild(style);
+      alert("Custom scrollbar styles injected!");
+    };
+    const makeResponsive = (el) => {
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      el.style.width = "100%";
+      el.style.maxWidth = `${rect.width}px`;
+      el.style.height = "auto";
+      alert("Element made responsive (width: 100%, max-width: fixed)!");
     };
     const saveLogsToServer = (0, import_react.useCallback)(async (silent = false, data) => {
       const dataToUse = data || historyRef.current;
@@ -31216,7 +31299,7 @@ var UIDebuggerPro = (() => {
       };
       setHistory((prev) => {
         if (prev.length > 0 && prev[0].path === info.path && prev[0].eventType === info.eventType) return prev;
-        return [info, ...prev].slice(0, 300);
+        return [info, ...prev].slice(0, 5e3);
       });
     };
     const addTargetedRule = (selector, property, value) => {
@@ -31444,7 +31527,14 @@ ${url}`);
           className: "flex-1 py-2 rounded font-bold text-white bg-amber-700 hover:bg-amber-600"
         },
         "\u{1F412} Monkey Test"
-      )), /* @__PURE__ */ import_react.default.createElement("div", { className: "mt-3" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between text-[10px] text-slate-400 mb-1" }, /* @__PURE__ */ import_react.default.createElement("span", null, "Scan Sensitivity"), /* @__PURE__ */ import_react.default.createElement("span", null, Math.round(sensitivity * 100), "%")), /* @__PURE__ */ import_react.default.createElement(
+      )), /* @__PURE__ */ import_react.default.createElement(
+        "button",
+        {
+          onClick: injectScrollbarStyles,
+          className: "w-full py-2 rounded font-bold text-white bg-teal-700 hover:bg-teal-600 mb-2"
+        },
+        "\u{1F3A8} Style Scrollbars"
+      ), /* @__PURE__ */ import_react.default.createElement("div", { className: "mt-3" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between text-[10px] text-slate-400 mb-1" }, /* @__PURE__ */ import_react.default.createElement("span", null, "Scan Sensitivity"), /* @__PURE__ */ import_react.default.createElement("span", null, Math.round(sensitivity * 100), "%")), /* @__PURE__ */ import_react.default.createElement(
         "input",
         {
           type: "range",
@@ -31561,6 +31651,20 @@ ${url}`);
           className: "bg-red-900/50 hover:bg-red-800 text-red-200 py-1 rounded text-[10px]"
         },
         "\u{1F5D1}\uFE0F Delete"
+      ), /* @__PURE__ */ import_react.default.createElement(
+        "button",
+        {
+          onClick: () => revertElementChanges(selectedElement),
+          className: "bg-slate-700 hover:bg-yellow-600 text-white py-1 rounded text-[10px]"
+        },
+        "\u21A9\uFE0F Revert"
+      ), /* @__PURE__ */ import_react.default.createElement(
+        "button",
+        {
+          onClick: () => makeResponsive(selectedElement),
+          className: "bg-slate-700 hover:bg-blue-600 text-white py-1 rounded text-[10px]"
+        },
+        "\u{1F4F1} Responsive"
       )), /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-800 p-2 rounded border border-slate-700 space-y-2" }, /* @__PURE__ */ import_react.default.createElement("h5", { className: "font-bold text-slate-400 text-[10px] uppercase" }, "Styles"), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Text Color"), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex gap-1" }, /* @__PURE__ */ import_react.default.createElement(
         "input",
         {
@@ -31739,7 +31843,78 @@ ${url}`);
         /* @__PURE__ */ import_react.default.createElement("option", { value: "center" }, "Align: Center"),
         /* @__PURE__ */ import_react.default.createElement("option", { value: "flex-start" }, "Align: Start"),
         /* @__PURE__ */ import_react.default.createElement("option", { value: "flex-end" }, "Align: End")
-      ))), /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-900/30 p-2 rounded border border-slate-700/50" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block mb-1 font-bold" }, "Computed Final Values"), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-2 gap-x-2 gap-y-1 text-[9px] font-mono text-slate-400" }, /* @__PURE__ */ import_react.default.createElement("div", null, "W: ", selectedElement.getBoundingClientRect().width.toFixed(1), "px"), /* @__PURE__ */ import_react.default.createElement("div", null, "H: ", selectedElement.getBoundingClientRect().height.toFixed(1), "px"), /* @__PURE__ */ import_react.default.createElement("div", null, "Col: ", /* @__PURE__ */ import_react.default.createElement("span", { style: { color: window.getComputedStyle(selectedElement).color } }, "\u25A0"), " ", window.getComputedStyle(selectedElement).color), /* @__PURE__ */ import_react.default.createElement("div", null, "Bg: ", /* @__PURE__ */ import_react.default.createElement("span", { style: { color: window.getComputedStyle(selectedElement).backgroundColor } }, "\u25A0"), " ", window.getComputedStyle(selectedElement).backgroundColor), /* @__PURE__ */ import_react.default.createElement("div", null, "Font: ", window.getComputedStyle(selectedElement).fontFamily.split(",")[0]), /* @__PURE__ */ import_react.default.createElement("div", null, "Size: ", window.getComputedStyle(selectedElement).fontSize))), /* @__PURE__ */ import_react.default.createElement("div", { className: "pt-2 border-t border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between items-center mb-1" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 font-bold" }, "Generated CSS"), /* @__PURE__ */ import_react.default.createElement(
+      ))), /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-900/30 p-2 rounded border border-slate-700/50" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block mb-1 font-bold" }, "Computed Final Values"), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-2 gap-x-2 gap-y-1 text-[9px] font-mono text-slate-400" }, /* @__PURE__ */ import_react.default.createElement("div", null, "W: ", selectedElement.getBoundingClientRect().width.toFixed(1), "px"), /* @__PURE__ */ import_react.default.createElement("div", null, "H: ", selectedElement.getBoundingClientRect().height.toFixed(1), "px"), /* @__PURE__ */ import_react.default.createElement("div", null, "Col: ", /* @__PURE__ */ import_react.default.createElement("span", { style: { color: window.getComputedStyle(selectedElement).color } }, "\u25A0"), " ", window.getComputedStyle(selectedElement).color), /* @__PURE__ */ import_react.default.createElement("div", null, "Bg: ", /* @__PURE__ */ import_react.default.createElement("span", { style: { color: window.getComputedStyle(selectedElement).backgroundColor } }, "\u25A0"), " ", window.getComputedStyle(selectedElement).backgroundColor), /* @__PURE__ */ import_react.default.createElement("div", null, "Font: ", window.getComputedStyle(selectedElement).fontFamily.split(",")[0]), /* @__PURE__ */ import_react.default.createElement("div", null, "Size: ", window.getComputedStyle(selectedElement).fontSize))), /* @__PURE__ */ import_react.default.createElement("div", { className: "pt-2 border-t border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between items-center mb-1" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 font-bold" }, "Export Code"), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex gap-1" }, /* @__PURE__ */ import_react.default.createElement(
+        "button",
+        {
+          onClick: () => {
+            const html = selectedElement.outerHTML;
+            navigator.clipboard.writeText(html);
+            alert("HTML copied to clipboard!");
+          },
+          className: "bg-slate-700 hover:bg-slate-600 text-white px-2 py-0.5 rounded text-[9px]"
+        },
+        "Copy HTML"
+      ), /* @__PURE__ */ import_react.default.createElement(
+        "button",
+        {
+          onClick: () => {
+            let jsx = selectedElement.outerHTML.replace(/class=/g, "className=").replace(/style="([^"]*)"/g, (_, style) => {
+              const styleObj = style.split(";").reduce((acc, rule) => {
+                const [prop, val] = rule.split(":");
+                if (prop && val) {
+                  const camelProp = prop.trim().replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+                  acc += `${camelProp}: "${val.trim()}", `;
+                }
+                return acc;
+              }, "");
+              return `style={{${styleObj}}}`;
+            });
+            navigator.clipboard.writeText(jsx);
+            alert("JSX copied to clipboard!");
+          },
+          className: "bg-slate-700 hover:bg-slate-600 text-white px-2 py-0.5 rounded text-[9px]"
+        },
+        "Copy JSX"
+      ))), /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-900/50 p-2 rounded border border-slate-700/50 mb-2" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between items-center mb-1" }, /* @__PURE__ */ import_react.default.createElement("span", { className: "text-[9px] text-blue-400 font-bold" }, "Tailwind (Approx)"), /* @__PURE__ */ import_react.default.createElement(
+        "button",
+        {
+          onClick: () => {
+            const s = window.getComputedStyle(selectedElement);
+            const classes = [];
+            if (s.display === "flex") classes.push("flex");
+            if (s.display === "grid") classes.push("grid");
+            if (s.display === "none") classes.push("hidden");
+            if (s.position !== "static") classes.push(s.position);
+            if (s.backgroundColor !== "rgba(0, 0, 0, 0)") classes.push(`bg-[${s.backgroundColor}]`);
+            if (s.color) classes.push(`text-[${s.color}]`);
+            if (s.fontSize) classes.push(`text-[${s.fontSize}]`);
+            if (s.fontWeight !== "400") classes.push(`font-[${s.fontWeight}]`);
+            if (s.padding !== "0px") classes.push(`p-[${s.padding}]`);
+            if (s.margin !== "0px") classes.push(`m-[${s.margin}]`);
+            if (s.borderRadius !== "0px") classes.push(`rounded-[${s.borderRadius}]`);
+            const tw = classes.join(" ");
+            navigator.clipboard.writeText(tw);
+            alert("Tailwind classes copied!");
+          },
+          className: "text-[9px] text-slate-500 hover:text-white"
+        },
+        "Copy"
+      )), /* @__PURE__ */ import_react.default.createElement("div", { className: "text-[9px] font-mono text-slate-400 break-all" }, (() => {
+        const s = window.getComputedStyle(selectedElement);
+        const classes = [];
+        if (s.display === "flex") classes.push("flex");
+        if (s.display === "grid") classes.push("grid");
+        if (s.display === "none") classes.push("hidden");
+        if (s.position !== "static") classes.push(s.position);
+        if (s.backgroundColor !== "rgba(0, 0, 0, 0)") classes.push(`bg-[${s.backgroundColor}]`);
+        if (s.color) classes.push(`text-[${s.color}]`);
+        if (s.fontSize) classes.push(`text-[${s.fontSize}]`);
+        if (s.fontWeight !== "400") classes.push(`font-[${s.fontWeight}]`);
+        if (s.padding !== "0px") classes.push(`p-[${s.padding}]`);
+        if (s.margin !== "0px") classes.push(`m-[${s.margin}]`);
+        if (s.borderRadius !== "0px") classes.push(`rounded-[${s.borderRadius}]`);
+        return classes.join(" ") || "No styles detected";
+      })())), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between items-center mb-1" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 font-bold" }, "Generated CSS"), /* @__PURE__ */ import_react.default.createElement(
         "button",
         {
           onClick: () => {
@@ -31830,6 +32005,14 @@ ${url}`);
         },
         "Uninstall / Remove from Project"
       ))))),
+      toggles.ruler && rulerBox && /* @__PURE__ */ import_react.default.createElement(
+        "div",
+        {
+          className: "fixed z-[9999] border-2 border-indigo-500 bg-indigo-500/10 pointer-events-none flex items-center justify-center",
+          style: { left: rulerBox.x, top: rulerBox.y, width: rulerBox.w, height: rulerBox.h }
+        },
+        /* @__PURE__ */ import_react.default.createElement("span", { className: "bg-indigo-600 text-white text-[10px] px-1 rounded shadow font-bold" }, Math.round(rulerBox.w), " x ", Math.round(rulerBox.h))
+      ),
       toggles.outline && /* @__PURE__ */ import_react.default.createElement("style", null, `* { outline: none !important; }`),
       toggles.shadow && /* @__PURE__ */ import_react.default.createElement("style", null, `* { box-shadow: none !important; }`),
       toggles.ring && /* @__PURE__ */ import_react.default.createElement("style", null, `* { --tw-ring-color: transparent !important; --tw-ring-offset-width: 0px !important; box-shadow: none !important; }`),

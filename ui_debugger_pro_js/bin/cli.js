@@ -441,35 +441,6 @@ function remove() {
   }
 }
 
-function findProjectRoot() {
-  // Search for package.json in current dir and subdirectories
-  const searchDirs = [
-    '.',
-    './app', './App',
-    './src',
-    './client',
-    './frontend',
-    './web',
-  ];
-  
-  for (const dir of searchDirs) {
-    const pkgPath = path.join(dir, 'package.json');
-    if (fs.existsSync(pkgPath)) {
-      try {
-        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-        if (pkg.scripts && Object.keys(pkg.scripts).length > 0) {
-          log(`✅ Found project in: ${dir}`, 'success');
-          return dir;
-        }
-      } catch (e) {
-        // Skip invalid package.json
-      }
-    }
-  }
-  
-  return null;
-}
-
 function start() {
   log('🚀 Starting UI Debugger Pro - Universal Zero-Config Mode...', 'info');
   log('🔎 Searching for project (checking parent & child directories)...', 'info');
