@@ -6,17 +6,24 @@ UI Debugger Pro is a universal tool designed to help developers find and fix vis
 
 ## 🚀 Quick Start - One Universal Command!
 
-**Works with ANY project type - React, Next.js, Vue, Python, PHP, Ruby, and more!**
+**Works with ANY project type - Run from ANYWHERE in your project!**
 
 ```bash
-# For JavaScript/Node.js projects
+# For JavaScript/Node.js projects - run from anywhere
 npx ui-debugger-pro start
 
-# For Python/other projects  
+# For Python/other projects - run from anywhere
 ui-debugger start
 ```
 
-That's it! The CLI auto-detects your project type, finds entry points, and runs your dev server with the debugger attached. Press **Ctrl+C** to stop and automatically clean up.
+**That's it!** No need to `cd` to specific folders. The CLI:
+- 🔍 **Finds your project** automatically (checks root, app/, App/, src/, client/, etc.)
+- 🎯 **Detects project type** (React, Next.js, Vue, Django, Flask, FastAPI, PHP, Ruby, HTML)
+- 📁 **Locates entry files** anywhere in your structure
+- 🚀 **Runs your dev server** automatically
+- 🧹 **Auto-cleans up** when you press Ctrl+C
+
+**Run it from your project root, a subdirectory, anywhere - it just works!**
 
 ### Installation
 

@@ -58,16 +58,51 @@ def clean():
 def start(args):
     """Start your app with UI Debugger injected (Universal Zero Config).
     
-    Works with ANY project type - auto-detects and configures everything!
+    Works from ANY directory - automatically finds your project!
     
     Usage: 
-        ui-debugger start                    # Auto-detect everything
+        ui-debugger start                    # Run from anywhere in your project
         ui-debugger start -- <your-command>  # Explicit command (optional)
     
     Supports: Django, Flask, FastAPI, Next.js, React, Vue, PHP, Ruby, HTML, and more!
     """
     click.echo("🚀 UI Debugger Pro - Universal Zero-Config Mode")
     click.echo("🔎 Auto-detecting project type...")
+    
+    # 0. Find the actual project directory
+    project_dirs = ['.', 'app', 'App', 'src', 'backend', 'server', 'client', 'frontend', 'web']
+    project_root = None
+    
+    for dir_name in project_dirs:
+        if not os.path.exists(dir_name):
+            continue
+            
+        # Check for Node.js project
+        pkg_json = os.path.join(dir_name, 'package.json')
+        if os.path.exists(pkg_json):
+            try:
+                with open(pkg_json, 'r') as f:
+                    pkg = __import__('json').load(f)
+                    if 'scripts' in pkg and pkg['scripts']:
+                        project_root = dir_name
+                        break
+            except:
+                pass
+        
+        # Check for Python project markers
+        for marker in ['manage.py', 'app.py', 'main.py', 'requirements.txt', 'pyproject.toml']:
+            if os.path.exists(os.path.join(dir_name, marker)):
+                project_root = dir_name
+                break
+        
+        if project_root:
+            break
+    
+    # Switch to project directory
+    if project_root and project_root != '.':
+        click.echo(f"📂 Detected project in subdirectory: {project_root}")
+        click.echo("🔄 Switching to project directory...")
+        os.chdir(project_root)
     
     injected_file = None
     original_content = None

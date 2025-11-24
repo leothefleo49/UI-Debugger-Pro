@@ -334,9 +334,47 @@ function remove() {
   }
 }
 
+function findProjectRoot() {
+  // Search for package.json in current dir and subdirectories
+  const searchDirs = [
+    '.',
+    './app', './App',
+    './src',
+    './client',
+    './frontend',
+    './web',
+  ];
+  
+  for (const dir of searchDirs) {
+    const pkgPath = path.join(dir, 'package.json');
+    if (fs.existsSync(pkgPath)) {
+      try {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        if (pkg.scripts && Object.keys(pkg.scripts).length > 0) {
+          log(`✅ Found project in: ${dir}`, 'success');
+          return dir;
+        }
+      } catch (e) {
+        // Skip invalid package.json
+      }
+    }
+  }
+  
+  return null;
+}
+
 function start() {
   log('🚀 Starting UI Debugger Pro - Universal Zero-Config Mode...', 'info');
   log('🔎 Auto-detecting project type and configuration...', 'info');
+  
+  // 0. Find the actual project directory
+  const projectRoot = findProjectRoot();
+  
+  if (projectRoot && projectRoot !== '.') {
+    log(`📂 Detected project in subdirectory: ${projectRoot}`, 'info');
+    log(`🔄 Switching to project directory...`, 'info');
+    process.chdir(projectRoot);
+  }
   
   // 1. Inject
   const injected = injectCode();

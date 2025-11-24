@@ -1139,7 +1139,7 @@ if (typeof window !== 'undefined') {
       div.id = rootId;
       document.body.appendChild(div);
       const root = createRoot(div);
-      root.render(<UIDebugger />);
+      root.render();
       console.log('🚀 UI Debugger Pro mounted automatically.');
     }
   };
