@@ -3,6 +3,7 @@ name: Publish README as Release Asset
 on:
   push:
     branches: [ main, master ]
+  workflow_dispatch: {}
 
 permissions:
   contents: write
