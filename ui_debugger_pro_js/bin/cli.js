@@ -323,13 +323,23 @@ function injectCode() {
       content = content.replace(/<Component\s+\{\.\.\.pageProps\}\s*\/?>/, `$&\n      ${COMPONENT_TAG}`);
     }
   } else if (type === 'vite' || type === 'react') {
-    // Vite/CRA: Usually root.render(<App />) or <StrictMode><App /></StrictMode>
-    if (content.includes('<App />') && !content.includes('<App />\n')) {
-      content = content.replace('<App />', `<>\n    <App />\n    ${COMPONENT_TAG}\n  </>`);
-    } else if (content.includes('<App/>')) {
-      content = content.replace('<App/>', `<>\n    <App/>\n    ${COMPONENT_TAG}\n  </>`);
-    } else if (content.includes('</StrictMode>')) {
-      content = content.replace('</StrictMode>', `  ${COMPONENT_TAG}\n  </StrictMode>`);
+    // Vite/CRA: Find createRoot().render() and inject inside
+    // Strategy: Add UIDebugger as sibling to App inside StrictMode
+    
+    // Look for root.render(<StrictMode>...<App />...</StrictMode>)
+    if (content.includes('<StrictMode>') && content.includes('<App')) {
+      // Add UIDebugger right after App component inside StrictMode
+      const appRegex = /(<App\s*\/>|<App><\/App>)/;
+      if (appRegex.test(content)) {
+        content = content.replace(appRegex, `$1\n      ${COMPONENT_TAG}`);
+      }
+    } else if (content.includes('root.render(') && content.includes('<App')) {
+      // No StrictMode, just root.render(<App />)
+      // Wrap in fragment to add debugger
+      const appRegex = /(root\.render\(\s*)(<App\s*\/?>)/;
+      if (appRegex.test(content)) {
+        content = content.replace(appRegex, `$1<>\n    $2\n    ${COMPONENT_TAG}\n  </>`);
+      }
     }
   } else if (type === 'vue') {
     // Vue: Add to App.vue template or main.ts with global component
@@ -367,8 +377,9 @@ function removeCode() {
       content = content.replace(new RegExp(COMPONENT_TAG.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '');
       
       // Clean up fragments if we added them
-      content = content.replace('<>\n    <App />\n    \n  </>', '<App />');
-      content = content.replace('<>\n    <App/>\n    \n  </>', '<App/>');
+      content = content.replace(/<>\s*\n\s*(<[^>]+\s*\/>)\s*\n\s*\n\s*<\/>/g, '$1');
+      content = content.replace(/<>\s*\n\s*(<[^>]+>)/g, '$1');
+      content = content.replace(/<\/StrictMode>\s*\n\s*<\/>/g, '</StrictMode>');
       
       // Remove empty lines that might have been created
       content = content.replace(/\n\n\n+/g, '\n\n');
@@ -431,6 +442,9 @@ function start() {
   log('🚀 Starting UI Debugger Pro - Universal Zero-Config Mode...', 'info');
   log('🔎 Searching for project (checking parent & child directories)...', 'info');
   
+  // Save original directory to restore later
+  const originalCwd = process.cwd();
+  
   // 0. Find the actual project directory (search up and down)
   const projectRoot = findProjectRoot();
   
@@ -483,6 +497,12 @@ function start() {
     cleanedUp = true;
     log('\n🛑 Stopping and cleaning up...', 'info');
     removeCode();
+    // Restore original directory
+    try {
+      process.chdir(originalCwd);
+    } catch (e) {
+      // Ignore if original directory no longer exists
+    }
     process.exit();
   };
   
