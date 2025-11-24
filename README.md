@@ -21,7 +21,13 @@ UI Debugger Pro is a universal tool designed to help developers find and fix vis
 
 ---
 
-## ✨ Features (v7.0)
+## ✨ Features (v7.5)
+
+### 🔌 Zero-Config Installation
+- **Automatic Setup**: Run `npx ui-debugger-pro start` or `ui-debugger run` to instantly add the debugger to any project.
+- **Auto-Cleanup**: Press Ctrl+C and all injected code is automatically removed.
+- **Plugin Support**: Persistent zero-config via Vite, Next.js, and Webpack plugins.
+- **Universal**: Works with React, Vue, Django, Flask, FastAPI, PHP, Ruby, and static HTML.
 
 ### 🤖 Auto-Fix & History
 - **Auto-Fix**: Click a button to automatically apply CSS fixes for overlaps, cutoffs, and contrast issues.

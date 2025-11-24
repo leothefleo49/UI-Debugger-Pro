@@ -1,6 +1,36 @@
 # Detailed Feature Documentation
 
-This document provides an in-depth explanation of every feature available in **UI Debugger Pro v7.0**.
+This document provides an in-depth explanation of every feature available in **UI Debugger Pro v7.5**.
+
+---
+
+## 🔌 Zero-Config Installation (NEW in v7.5)
+
+UI Debugger Pro now features automatic setup and teardown, making it easier than ever to debug your applications without modifying your source code.
+
+### 1. Automatic Code Injection
+*   **What it does**: Automatically detects your project type and injects the debugger without requiring manual code changes.
+*   **Supported**: React, Next.js, Vite, Django, Flask, FastAPI, PHP, Ruby, and static HTML.
+*   **Commands**:
+    *   JavaScript: `npx ui-debugger-pro start`
+    *   Python: `ui-debugger run -- <your command>`
+*   **Benefit**: Start debugging in seconds without editing `App.tsx`, `settings.py`, or HTML files.
+
+### 2. Auto-Cleanup on Exit
+*   **What it does**: When you press Ctrl+C to stop your dev server, all injected code is automatically removed.
+*   **Why use it**: Ensures your codebase stays clean and production-ready. No risk of accidentally committing debug code.
+
+### 3. Plugin-Based Persistence
+For projects where you want the debugger permanently available during development:
+*   **Vite Plugin**: Add `uiDebuggerPlugin()` to `vite.config.ts`
+*   **Next.js Plugin**: Wrap your config with `withUIDebugger()`
+*   **Webpack Plugin**: Add `new UIDebuggerWebpackPlugin()` to your webpack config
+*   **Benefit**: Zero-config that persists across restarts without manual code injection.
+
+### 4. Universal Proxy Server
+*   **What it does**: For PHP, Ruby, and static HTML sites, the CLI starts a proxy server that automatically injects the debugger into all HTML responses.
+*   **Usage**: `ui-debugger run -- php -S localhost:8000`
+*   **Access**: Visit `localhost:8001` (proxy port) to see your site with the debugger enabled.
 
 ---
 
@@ -104,6 +134,48 @@ When an issue is found in the **Deep Scan**, an "Auto-Fix" button appears. Click
 *   **Tracking**: Every Auto-Fix is recorded in the "Applied Fixes" list.
 *   **Revert**: You can undo any specific fix without reloading the page.
 *   **Copy CSS**: Each fix generates the exact CSS code needed to solve the problem permanently. You can copy this and paste it into your stylesheet.
+
+---
+
+## 💻 CLI Commands (v7.5)
+
+### JavaScript/NPM Commands
+*   `npx ui-debugger-pro start` - **Zero-Config:** Temporarily injects the debugger, runs your dev server, and auto-removes on exit (Ctrl+C).
+*   `npx ui-debugger-pro init` - Installs and permanently configures the debugger in your project files.
+*   `npx ui-debugger-pro remove` - Uninstalls the package and removes all injected code from your project.
+*   `npx ui-debugger-pro help` - Opens the documentation in your browser.
+*   `npx ui-debugger-pro commands` - Lists all available CLI commands.
+
+### Python/PIP Commands
+*   `ui-debugger run -- <your command>` - **Zero-Config:** Runs your Python app with the debugger injected. Auto-removes on exit.
+*   `ui-debugger enable` - Enables the debugger in your config (persistent across restarts).
+*   `ui-debugger disable` - Disables the debugger without uninstalling the package.
+*   `ui-debugger clean` - Cleans up old debug logs from your project.
+
+### Plugin Usage (Persistent Zero-Config)
+Instead of CLI commands, you can use framework-specific plugins:
+
+**Vite** (`vite.config.ts`):
+```ts
+import { uiDebuggerPlugin } from 'ui-debugger-pro/plugin';
+export default defineConfig({
+  plugins: [uiDebuggerPlugin()],
+});
+```
+
+**Next.js** (`next.config.js`):
+```js
+const { withUIDebugger } = require('ui-debugger-pro/next');
+module.exports = withUIDebugger({ /* your config */ });
+```
+
+**Webpack** (`webpack.config.js`):
+```js
+const { UIDebuggerWebpackPlugin } = require('ui-debugger-pro/webpack');
+module.exports = {
+  plugins: [new UIDebuggerWebpackPlugin()],
+};
+```
 
 ---
 
