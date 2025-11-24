@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.tsx'],
+  entry: ['src/index.tsx', 'src/plugin.ts', 'src/next-plugin.ts', 'src/webpack-plugin.ts', 'src/inject.ts'],
   format: ['cjs', 'esm', 'iife'],
   globalName: 'UIDebuggerPro',
   dts: true,

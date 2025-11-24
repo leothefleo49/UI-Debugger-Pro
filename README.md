@@ -8,10 +8,10 @@ UI Debugger Pro is a universal tool designed to help developers find and fix vis
 
 ### Choose Your Environment
 
-| Environment | Installation Method | Guide |
+| Environment | Zero-Config Setup | Installation Guide |
 | :--- | :--- | :--- |
-| **React / Next.js / Vite** | `npx ui-debugger-pro init` | [**Read Guide**](./docs/INSTALL_REACT.md) |
-| **Python (Flask / Django)** | `pip install ui-debugger-pro` | [**Read Guide**](./docs/INSTALL_PYTHON.md) |
+| **React / Next.js / Vite** | `npm i ui-debugger-pro && npx ui-debugger-pro start` | [**Read Guide**](./docs/INSTALL_REACT.md) |
+| **Python (Flask / Django)** | `pip install ui-debugger-pro && ui-debugger run -- python manage.py runserver` | [**Read Guide**](./docs/INSTALL_PYTHON.md) |
 | **HTML / PHP / Ruby** | Add `<script>` tag | [**Read Guide**](./docs/INSTALL_VANILLA.md) |
 | **Browser Extension** | Chrome / Edge / Opera | [**Read Guide**](./docs/INSTALL_EXTENSION.md) |
 | **Any Website (No Code)** | Bookmarklet (Drag & Drop) | [**Get Bookmarklet**](./docs/bookmarklet_install.html) |
@@ -61,14 +61,24 @@ Automated chaos testing for your UI. Clicks random buttons to find broken paths.
 
 ## 💻 CLI Commands
 
-These commands work with `npx` (Node.js) but we are working on supporting other package managers.
+### JavaScript/NPM Commands
 
 | Command | Description |
 | :--- | :--- |
-| `npx ui-debugger-pro init` | Installs and configures the debugger in your project automatically. |
-| `npx ui-debugger-pro remove` | Uninstalls the package and removes the injected code. |
-| `npx ui-debugger-pro help` | Opens the documentation in your browser. |
-| `npx ui-debugger-pro commands` | Lists all available commands. |
+| `npx ui-debugger-pro start` | **Zero-Config:** Run your app with debugger injected. Auto-removes on exit (Ctrl+C). |
+| `npx ui-debugger-pro init` | Install and permanently configure the debugger in your project. |
+| `npx ui-debugger-pro remove` | Uninstall the package and remove all injected code. |
+| `npx ui-debugger-pro help` | Open the documentation in your browser. |
+| `npx ui-debugger-pro commands` | List all available commands. |
+
+### Python/PIP Commands
+
+| Command | Description |
+| :--- | :--- |
+| `ui-debugger run -- <your command>` | **Zero-Config:** Run your Python app with debugger injected. Auto-removes on exit. |
+| `ui-debugger enable` | Enable the debugger in your config. |
+| `ui-debugger disable` | Disable the debugger without uninstalling. |
+| `ui-debugger clean` | Clean up old debug logs. |
 
 > *Tip: You can also access help directly inside the UI by clicking the **❓ HELP** button.*
 

@@ -1,10 +1,36 @@
 {
   "name": "ui-debugger-pro",
-  "version": "7.0.1",
+  "version": "7.5.0",
   "description": "Universal UI Debugger for React & Web Apps. Detect overlaps, cutoffs, alignment issues, and 'ghost' elements.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./plugin": {
+      "import": "./dist/plugin.mjs",
+      "require": "./dist/plugin.js",
+      "types": "./dist/plugin.d.ts"
+    },
+    "./next": {
+      "import": "./dist/next-plugin.mjs",
+      "require": "./dist/next-plugin.js",
+      "types": "./dist/next-plugin.d.ts"
+    },
+    "./webpack": {
+      "import": "./dist/webpack-plugin.mjs",
+      "require": "./dist/webpack-plugin.js",
+      "types": "./dist/webpack-plugin.d.ts"
+    },
+    "./inject": {
+      "import": "./dist/inject.mjs",
+      "require": "./dist/inject.js"
+    }
+  },
   "bin": {
     "ui-debugger-pro": "./bin/cli.js"
   },
@@ -26,7 +52,17 @@
   "license": "MIT",
   "peerDependencies": {
     "react": ">=16.8.0",
-    "react-dom": ">=16.8.0"
+    "react-dom": ">=16.8.0",
+    "vite": ">=4.0.0 || >=5.0.0",
+    "webpack": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    },
+    "webpack": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
@@ -37,6 +73,7 @@
     "typescript": "^5.0.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "bin"
   ]
 }

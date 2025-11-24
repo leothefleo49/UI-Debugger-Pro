@@ -4,7 +4,44 @@ UI Debugger Pro can be used on **any** website, even if you don't use React or P
 
 ---
 
-## 🌐 CDN (Script Tag)
+## ⚡ Zero-Config Setup (Recommended)
+
+For quick testing with auto-cleanup:
+
+### Python-based Proxy Method
+
+```bash
+# Install the Python package
+pip install ui-debugger-pro
+
+# Run your site through the proxy (auto-injects the debugger)
+ui-debugger run                                  # Auto-detects index.html
+ui-debugger run -- php -S localhost:8000         # For PHP
+ui-debugger run -- ruby -run -e httpd . -p 8000  # For Ruby
+ui-debugger run -- python -m http.server 8000    # For static HTML
+```
+
+This starts a proxy server that:
+- Forwards requests to your backend
+- Injects the UI Debugger into all HTML responses
+- Auto-removes everything when you press Ctrl+C
+
+**Access your site at:** `http://localhost:8001` (proxy port)
+
+### NPM-based HTML Injection
+
+```bash
+# Install the package
+npm install ui-debugger-pro
+
+# Inject into index.html and run your server
+npx ui-debugger-pro init    # One-time injection
+npx ui-debugger-pro start   # Or use temporary injection with auto-cleanup
+```
+
+---
+
+## 🌐 CDN (Script Tag) - Permanent Installation
 
 Simply add this code to the bottom of your `<body>` tag. It works in WordPress, PHP, Ruby on Rails, static HTML, etc.
 

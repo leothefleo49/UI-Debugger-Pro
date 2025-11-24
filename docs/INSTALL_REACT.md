@@ -1,22 +1,78 @@
 # Installation Guide: React, Next.js, & Vite
 
-## ⚡ Quick Setup (Recommended)
+## ⚡ Zero-Config Setup (Recommended)
 
-The fastest way to install and configure UI Debugger Pro is using the CLI tool. Run this in your project root:
+The fastest way to use UI Debugger Pro without touching your code:
 
 ```bash
-npx ui-debugger-pro init
+# Install the package
+npm install ui-debugger-pro
+
+# Run your app with the debugger (auto-cleans up on exit)
+npx ui-debugger-pro start
 ```
 
-This will automatically:
-1. Install the package.
-2. Inject the `<UIDebugger />` component into your `layout.tsx`, `App.tsx`, or `main.tsx`.
+This command will:
+1. Temporarily inject the debugger into your app
+2. Start your dev server
+3. Auto-remove the debugger code when you stop the server (Ctrl+C)
+
+**No code changes needed!** Perfect for quick debugging sessions.
 
 ---
 
-## 📦 Manual Installation
+## 🔌 Plugin-Based Setup (Zero Code Changes)
 
-If you prefer to set it up manually:
+For a persistent zero-config setup, use our plugins:
+
+### Vite Plugin
+
+In `vite.config.ts`:
+
+```ts
+import { defineConfig } from 'vite';
+import { uiDebuggerPlugin } from 'ui-debugger-pro/plugin';
+
+export default defineConfig({
+  plugins: [
+    // Your other plugins...
+    uiDebuggerPlugin(), // Only active in dev mode
+  ],
+});
+```
+
+### Next.js Plugin
+
+In `next.config.js`:
+
+```js
+const { withUIDebugger } = require('ui-debugger-pro/next');
+
+module.exports = withUIDebugger({
+  // Your existing Next.js config...
+});
+```
+
+### Webpack (CRA and others)
+
+In `webpack.config.js`:
+
+```js
+const { UIDebuggerWebpackPlugin } = require('ui-debugger-pro/webpack');
+
+module.exports = {
+  // Your config...
+  plugins: [
+    new UIDebuggerWebpackPlugin(),
+  ],
+};
+```
+
+---
+
+## 📦 Traditional Installation (Manual Code Edits)
+
+If you prefer to add it directly to your code:
 
 1. **Install the package:**
    ```bash
@@ -65,6 +121,25 @@ function App() {
 
 export default App;
 ```
+
+---
+
+## 🗑️ Removing the Debugger
+
+### If using `npx ui-debugger-pro start`:
+Just press **Ctrl+C** to stop the server - it auto-cleans up!
+
+### If using plugins:
+Simply remove the plugin from your config file.
+
+### If installed manually:
+```bash
+npx ui-debugger-pro remove
+```
+
+Or manually delete the import and component from your code.
+
+---
 
 ## 🛠️ Configuration
 

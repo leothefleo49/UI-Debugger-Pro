@@ -32,13 +32,52 @@ function findEntryFile() {
     'app/layout.tsx', 'app/layout.js', // Next.js App Router
     'pages/_app.tsx', 'pages/_app.js', // Next.js Pages Router
     'src/main.tsx', 'src/main.js',     // Vite
-    'src/index.tsx', 'src/index.js'    // CRA / Webpack
+    'src/index.tsx', 'src/index.js',   // CRA / Webpack
+    'index.html', 'index.php'          // Static HTML / PHP
   ];
   
   for (const file of candidates) {
     if (fs.existsSync(file)) return file;
   }
   return null;
+}
+
+function injectIntoHTML(file) {
+  log(`📝 Injecting into ${file}...`, 'info');
+  let content = fs.readFileSync(file, 'utf8');
+  
+  if (content.includes('ui-debugger-pro')) {
+    log('⚠️ UI Debugger seems to be already installed in this file.', 'warn');
+    return false;
+  }
+  
+  // Inject CDN script
+  const script = `
+  <script src="https://cdn.jsdelivr.net/npm/ui-debugger-pro@latest/dist/index.global.js"></script>
+  <script>
+    if (window.UIDebuggerPro && window.UIDebuggerPro.UIDebugger) {
+      const container = document.createElement('div');
+      container.id = '__ui_debugger_pro__';
+      document.body.appendChild(container);
+      
+      if (window.React && window.ReactDOM) {
+        const root = ReactDOM.createRoot(container);
+        root.render(React.createElement(window.UIDebuggerPro.UIDebugger));
+      }
+    }
+  </script>`;
+  
+  if (content.includes('</body>')) {
+    content = content.replace('</body>', `${script}\n</body>`);
+  } else if (content.includes('</html>')) {
+    content = content.replace('</html>', `${script}\n</html>`);
+  } else {
+    content += script;
+  }
+  
+  fs.writeFileSync(file, content);
+  log(`✅ Successfully injected UI Debugger into ${file}`, 'success');
+  return true;
 }
 
 function install() {
@@ -59,11 +98,16 @@ function install() {
 function injectCode() {
   const file = findEntryFile();
   if (!file) {
-    log('⚠️ Could not automatically find entry file (app/layout.tsx, pages/_app.tsx, src/main.tsx).', 'warn');
+    log('⚠️ Could not automatically find entry file (app/layout.tsx, pages/_app.tsx, src/main.tsx, index.html).', 'warn');
     log('Please manually add the following to your root component:', 'info');
     log(`1. ${IMPORT_STATEMENT}`);
     log(`2. ${COMPONENT_TAG}`);
     return;
+  }
+
+  // Check if it's an HTML file
+  if (file.endsWith('.html') || file.endsWith('.php')) {
+    return injectIntoHTML(file);
   }
 
   log(`📝 Modifying ${file}...`, 'info');
@@ -113,23 +157,38 @@ function injectCode() {
   log(`✅ Successfully injected UI Debugger into ${file}`, 'success');
 }
 
-function remove() {
-  log('🗑️ Removing ui-debugger-pro...', 'info');
-  
-  // 1. Remove Code
+function removeCode() {
   const file = findEntryFile();
   if (file) {
     let content = fs.readFileSync(file, 'utf8');
     if (content.includes('ui-debugger-pro')) {
-      content = content.replace(IMPORT_STATEMENT + '\n', '');
-      content = content.replace(IMPORT_STATEMENT, '');
-      content = content.replace(COMPONENT_TAG, '');
-      // Cleanup fragments if we added them? Hard to know.
-      // We'll just remove the tag.
+      // For HTML files, remove CDN scripts
+      if (file.endsWith('.html') || file.endsWith('.php')) {
+        // Remove the entire script block we added
+        content = content.replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/ui-debugger-pro@latest\/dist\/index\.global\.js"><\/script>/g, '');
+        content = content.replace(/<script>[\s\S]*?if \(window\.UIDebuggerPro[\s\S]*?<\/script>/g, '');
+      } else {
+        // For JS/TS files, remove imports and components
+        content = content.replace(IMPORT_STATEMENT + '\n', '');
+        content = content.replace(IMPORT_STATEMENT, '');
+        content = content.replace(COMPONENT_TAG, '');
+        
+        // Attempt to clean up fragments if we added them
+        content = content.replace('<>\n    <App />\n    \n  </>', '<App />');
+        content = content.replace('<>\n    <App/>\n    \n  </>', '<App/>');
+      }
+
       fs.writeFileSync(file, content);
       log(`✅ Removed code from ${file}`, 'success');
     }
   }
+}
+
+function remove() {
+  log('🗑️ Removing ui-debugger-pro...', 'info');
+  
+  // 1. Remove Code
+  removeCode();
 
   // 2. Uninstall Package
   const pm = detectPackageManager();
@@ -144,11 +203,53 @@ function remove() {
   }
 }
 
+function start() {
+  log('🚀 Starting UI Debugger Pro in Zero-Config Mode...', 'info');
+  
+  // 1. Inject
+  injectCode();
+  
+  // 2. Run Dev Server
+  const pm = detectPackageManager();
+  const runCmd = pm === 'npm' ? 'npm run dev' : 
+                 pm === 'yarn' ? 'yarn dev' : 'pnpm dev';
+                 
+  log(`▶️  Running ${runCmd}...`, 'info');
+  log('⚠️  Press Ctrl+C to stop the server and remove the debugger.', 'warn');
+  
+  const child = require('child_process').spawn(runCmd, { 
+    shell: true, 
+    stdio: 'inherit' 
+  });
+  
+  let cleanedUp = false;
+  const cleanup = () => {
+    if (cleanedUp) return;
+    cleanedUp = true;
+    log('\n🛑 Stopping and cleaning up...', 'info');
+    removeCode();
+    process.exit();
+  };
+  
+  process.on('SIGINT', cleanup);
+  process.on('SIGTERM', cleanup);
+  // process.on('exit', cleanup); // Avoid double cleanup on normal exit
+  
+  child.on('exit', (code) => {
+    cleanup();
+  });
+}
+
 if (command === 'init') {
   install();
   injectCode();
   log('\n🎉 Setup Complete! Start your dev server to see the debugger.', 'success');
+} else if (command === 'start') {
+  start();
 } else if (command === 'remove') {
+  remove();
+  log('\n👋 UI Debugger Pro has been removed.', 'success');
+} else if (command === 'help') {
   remove();
   log('\n👋 UI Debugger Pro has been removed.', 'success');
 } else if (command === 'help') {
@@ -163,6 +264,7 @@ if (command === 'init') {
 } else if (command === 'commands') {
   log('\n🛠️  Available Commands:', 'info');
   log('   init      - Install and configure the debugger in your project', 'info');
+  log('   start     - Run your app with the debugger injected (Zero Config)', 'info');
   log('   remove    - Uninstall and remove all traces from your project', 'info');
   log('   help      - Open the documentation on GitHub', 'info');
   log('   commands  - Show this list', 'info');

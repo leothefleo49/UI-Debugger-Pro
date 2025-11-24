@@ -18,15 +18,19 @@ If you are unsure which version of UI Debugger Pro to use, follow this simple fl
 
 ### "I use `npm start`, `npm run dev`, or `yarn dev`."
 - Likely: React, Next.js, Vue, Svelte, or Vite.  
-- Recommended: CLI / NPM  
-- Command: `npx ui-debugger-pro init`  
-- Why? Integrates with your dev server and hot-reloading.
+- **Recommended: Zero-Config CLI**  
+- **Command: `npm i ui-debugger-pro && npx ui-debugger-pro start`**  
+- Why? No code changes needed! Auto-injects and auto-removes when you stop the server.
+- Alternative: Use plugins (Vite/Next.js/Webpack) for persistent zero-config setup.
+- Read: [React/Next.js Guide](./INSTALL_REACT.md)
 
 ### "I use Python (Flask, Django, FastAPI)."
 - Likely uses Jinja2 or Django templates.  
-- Recommended: Python package  
-- Command: `pip install ui-debugger-pro`  
-- Why? Injects the debugger via backend templates.
+- **Recommended: Zero-Config CLI**  
+- **Command: `pip install ui-debugger-pro && ui-debugger run -- python manage.py runserver`**  
+- Why? No code changes needed! Auto-injects middleware and auto-removes on exit.
+- Alternative: Manually add middleware to your code for persistent setup.
+- Read: [Python Guide](./INSTALL_PYTHON.md)
 
 ### "I just write `.html` files or use PHP/Ruby."
 - Vanilla HTML or SSR.  
