@@ -1,6 +1,6 @@
 {
   "name": "ui-debugger-pro",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "description": "Universal UI Debugger for React & Web Apps. Detect overlaps, cutoffs, alignment issues, and 'ghost' elements.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
