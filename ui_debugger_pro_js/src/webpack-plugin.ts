@@ -1,8 +1,9 @@
+// @ts-ignore - webpack is an optional peer dependency
 import type { Compiler } from 'webpack';
 
 export class UIDebuggerWebpackPlugin {
   apply(compiler: Compiler) {
-    compiler.hooks.compilation.tap('UIDebuggerWebpackPlugin', (compilation) => {
+    compiler.hooks.compilation.tap('UIDebuggerWebpackPlugin', (compilation: any) => {
       compilation.hooks.htmlWebpackPluginAfterHtmlProcessing?.tap(
         'UIDebuggerWebpackPlugin',
         (data: any) => {

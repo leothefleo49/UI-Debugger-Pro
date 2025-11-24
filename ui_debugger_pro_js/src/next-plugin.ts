@@ -1,4 +1,4 @@
-export function withUIDebugger(nextConfig = {}) {
+export function withUIDebugger(nextConfig: any = {}) {
   return {
     ...nextConfig,
     webpack(config: any, options: any) {

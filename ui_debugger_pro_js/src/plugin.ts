@@ -1,3 +1,4 @@
+// @ts-ignore - vite is an optional peer dependency
 import type { Plugin } from 'vite';
 
 export function uiDebuggerPlugin(): Plugin {

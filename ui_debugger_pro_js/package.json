@@ -7,24 +7,24 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./plugin": {
+      "types": "./dist/plugin.d.ts",
       "import": "./dist/plugin.mjs",
-      "require": "./dist/plugin.js",
-      "types": "./dist/plugin.d.ts"
+      "require": "./dist/plugin.js"
     },
     "./next": {
+      "types": "./dist/next-plugin.d.ts",
       "import": "./dist/next-plugin.mjs",
-      "require": "./dist/next-plugin.js",
-      "types": "./dist/next-plugin.d.ts"
+      "require": "./dist/next-plugin.js"
     },
     "./webpack": {
+      "types": "./dist/webpack-plugin.d.ts",
       "import": "./dist/webpack-plugin.mjs",
-      "require": "./dist/webpack-plugin.js",
-      "types": "./dist/webpack-plugin.d.ts"
+      "require": "./dist/webpack-plugin.js"
     },
     "./inject": {
       "import": "./dist/inject.mjs",
@@ -70,7 +70,9 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0",
+    "webpack": "^5.0.0"
   },
   "files": [
     "dist",
