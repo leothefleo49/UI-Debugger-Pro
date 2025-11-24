@@ -101,4 +101,21 @@ Donations are not required but are very much appreciated — they help cover mai
 
 Made with ❤️ by [leothefleo49](https://github.com/leothefleo49)
 
+---
+
+## 📥 Direct README Download
+
+If you want one guaranteed download of the README to share, use the release-asset link below. The repository contains a GitHub Action that publishes `README.md` as a release asset named `UI-Debugger-Pro-README.md` whenever you push to `main` or `master`.
+
+- Direct download (one click):
+	- https://github.com/leothefleo49/UI-Debugger-Pro/releases/download/readme-latest/UI-Debugger-Pro-README.md
+
+If you'd rather use a small page that forces a download (works in more browsers), open:
+
+- Download helper page: `docs/download_readme.html`
+
+Fallback (opens in browser; right-click → Save as):
+
+- Raw README: `https://raw.githubusercontent.com/leothefleo49/UI-Debugger-Pro/main/README.md`
+
 

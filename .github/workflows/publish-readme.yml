@@ -1,0 +1,34 @@
+name: Publish README as Release Asset
+
+on:
+  push:
+    branches: [ main, master ]
+
+permissions:
+  contents: write
+
+jobs:
+  publish-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Create or update release (readme-latest)
+        id: create_release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: readme-latest
+          name: README Download
+          body: "Auto-publish README.md as a direct-download asset."
+          draft: false
+          prerelease: false
+          allowUpdates: true
+
+      - name: Upload README.md as asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./README.md
+          asset_name: UI-Debugger-Pro-README.md
+          asset_content_type: text/markdown

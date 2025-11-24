@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Download README</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Arial;background:#0b1220;color:#e6eef8;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+    .box{max-width:720px;padding:28px;border-radius:12px;background:#0f1724;box-shadow:0 10px 30px rgba(0,0,0,.6);text-align:center}
+    button{padding:10px 16px;border-radius:8px;border:0;background:#06b6d4;color:#042027;font-weight:700;cursor:pointer}
+    a{color:#7dd3fc}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Download README</h1>
+    <p>Click the button to download the repository README file.</p>
+    <button id="downloadBtn">Download README.md</button>
+    <p style="margin-top:12px;font-size:13px;color:#9aa6b2">This will try the one-click release asset first, then fall back to the raw README if needed.</p>
+  </div>
+
+  <script>
+    // Repo details - pre-filled for this project
+    const GH_USER = 'leothefleo49';
+    const GH_REPO = 'UI-Debugger-Pro';
+    const RELEASE_ASSET_URL = `https://github.com/${GH_USER}/${GH_REPO}/releases/download/readme-latest/UI-Debugger-Pro-README.md`;
+    const RAW_URL = `https://raw.githubusercontent.com/${GH_USER}/${GH_REPO}/main/README.md`;
+
+    async function tryDownload(url) {
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Not available');
+        const text = await res.text();
+        const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+        const dl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = dl;
+        a.download = 'UI-Debugger-Pro-README.md';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(dl);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    document.getElementById('downloadBtn').addEventListener('click', async () => {
+      // Try release asset first (direct download)
+      const ok = await tryDownload(RELEASE_ASSET_URL);
+      if (ok) return;
+      // Fall back to raw file
+      const ok2 = await tryDownload(RAW_URL);
+      if (ok2) return;
+      alert('Download failed. You can open the raw README manually:\n\n' + RAW_URL);
+    });
+  </script>
+</body>
+</html>
