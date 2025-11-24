@@ -72,6 +72,7 @@ export function UIDebugger() {
       edit: false, // Design Mode (Edit Text)
       images: false, // Highlight Images
       gridOverlay: false, // New Grid Overlay
+      ruler: false, // Ruler Tool
     };
   });
 
@@ -79,6 +80,55 @@ export function UIDebugger() {
   useEffect(() => {
     document.designMode = toggles.edit ? 'on' : 'off';
   }, [toggles.edit]);
+
+  // --- State: Ruler ---
+  const [rulerBox, setRulerBox] = useState(null); // { x, y, w, h }
+
+  // --- Ruler Logic ---
+  useEffect(() => {
+    if (!toggles.ruler) {
+      setRulerBox(null);
+      return;
+    }
+
+    let startX = 0;
+    let startY = 0;
+    let isDrawing = false;
+
+    const onMouseDown = (e) => {
+      if (e.target.closest('#ui-debugger-pro-root')) return;
+      e.preventDefault();
+      isDrawing = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      setRulerBox({ x: startX, y: startY, w: 0, h: 0 });
+    };
+
+    const onMouseMove = (e) => {
+      if (!isDrawing) return;
+      const currentX = e.clientX;
+      const currentY = e.clientY;
+      const width = Math.abs(currentX - startX);
+      const height = Math.abs(currentY - startY);
+      const x = Math.min(currentX, startX);
+      const y = Math.min(currentY, startY);
+      setRulerBox({ x, y, w: width, h: height });
+    };
+
+    const onMouseUp = () => {
+      isDrawing = false;
+    };
+
+    document.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+
+    return () => {
+      document.removeEventListener('mousedown', onMouseDown);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [toggles.ruler]);
 
   // --- State: Animation Speed ---
   const [animationSpeed, setAnimationSpeed] = useState(1); // 1 = Normal, 0.1 = Slow Motion
@@ -1380,6 +1430,94 @@ export function UIDebugger() {
                   {/* Code View & Save */}
                   <div className="pt-2 border-t border-slate-700">
                     <div className="flex justify-between items-center mb-1">
+                      <label className="text-[9px] text-slate-500 font-bold">Export Code</label>
+                      <div className="flex gap-1">
+                        <button 
+                          onClick={() => {
+                            const html = selectedElement.outerHTML;
+                            navigator.clipboard.writeText(html);
+                            alert('HTML copied to clipboard!');
+                          }}
+                          className="bg-slate-700 hover:bg-slate-600 text-white px-2 py-0.5 rounded text-[9px]"
+                        >
+                          Copy HTML
+                        </button>
+                        <button 
+                          onClick={() => {
+                            // Simple JSX conversion
+                            let jsx = selectedElement.outerHTML
+                              .replace(/class=/g, 'className=')
+                              .replace(/style="([^"]*)"/g, (_, style) => {
+                                const styleObj = style.split(';').reduce((acc, rule) => {
+                                  const [prop, val] = rule.split(':');
+                                  if (prop && val) {
+                                    const camelProp = prop.trim().replace(/-([a-z])/g, g => g[1].toUpperCase());
+                                    acc += `${camelProp}: "${val.trim()}", `;
+                                  }
+                                  return acc;
+                                }, '');
+                                return `style={{${styleObj}}}`;
+                              });
+                            navigator.clipboard.writeText(jsx);
+                            alert('JSX copied to clipboard!');
+                          }}
+                          className="bg-slate-700 hover:bg-slate-600 text-white px-2 py-0.5 rounded text-[9px]"
+                        >
+                          Copy JSX
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {/* Tailwind Preview */}
+                    <div className="bg-slate-900/50 p-2 rounded border border-slate-700/50 mb-2">
+                       <div className="flex justify-between items-center mb-1">
+                          <span className="text-[9px] text-blue-400 font-bold">Tailwind (Approx)</span>
+                          <button 
+                            onClick={() => {
+                               const s = window.getComputedStyle(selectedElement);
+                               const classes = [];
+                               if (s.display === 'flex') classes.push('flex');
+                               if (s.display === 'grid') classes.push('grid');
+                               if (s.display === 'none') classes.push('hidden');
+                               if (s.position !== 'static') classes.push(s.position);
+                               if (s.backgroundColor !== 'rgba(0, 0, 0, 0)') classes.push(`bg-[${s.backgroundColor}]`);
+                               if (s.color) classes.push(`text-[${s.color}]`);
+                               if (s.fontSize) classes.push(`text-[${s.fontSize}]`);
+                               if (s.fontWeight !== '400') classes.push(`font-[${s.fontWeight}]`);
+                               if (s.padding !== '0px') classes.push(`p-[${s.padding}]`);
+                               if (s.margin !== '0px') classes.push(`m-[${s.margin}]`);
+                               if (s.borderRadius !== '0px') classes.push(`rounded-[${s.borderRadius}]`);
+                               
+                               const tw = classes.join(' ');
+                               navigator.clipboard.writeText(tw);
+                               alert('Tailwind classes copied!');
+                            }}
+                            className="text-[9px] text-slate-500 hover:text-white"
+                          >
+                            Copy
+                          </button>
+                       </div>
+                       <div className="text-[9px] font-mono text-slate-400 break-all">
+                          {(() => {
+                             const s = window.getComputedStyle(selectedElement);
+                             const classes = [];
+                             if (s.display === 'flex') classes.push('flex');
+                             if (s.display === 'grid') classes.push('grid');
+                             if (s.display === 'none') classes.push('hidden');
+                             if (s.position !== 'static') classes.push(s.position);
+                             if (s.backgroundColor !== 'rgba(0, 0, 0, 0)') classes.push(`bg-[${s.backgroundColor}]`);
+                             if (s.color) classes.push(`text-[${s.color}]`);
+                             if (s.fontSize) classes.push(`text-[${s.fontSize}]`);
+                             if (s.fontWeight !== '400') classes.push(`font-[${s.fontWeight}]`);
+                             if (s.padding !== '0px') classes.push(`p-[${s.padding}]`);
+                             if (s.margin !== '0px') classes.push(`m-[${s.margin}]`);
+                             if (s.borderRadius !== '0px') classes.push(`rounded-[${s.borderRadius}]`);
+                             return classes.join(' ') || 'No styles detected';
+                          })()}
+                       </div>
+                    </div>
+
+                    <div className="flex justify-between items-center mb-1">
                       <label className="text-[9px] text-slate-500 font-bold">Generated CSS</label>
                       <button 
                         onClick={() => {
@@ -1544,6 +1682,18 @@ export function UIDebugger() {
           </div>
         )}
       </div>
+
+      {/* Ruler Overlay */}
+      {toggles.ruler && rulerBox && (
+        <div 
+          className="fixed z-[9999] border-2 border-indigo-500 bg-indigo-500/10 pointer-events-none flex items-center justify-center"
+          style={{ left: rulerBox.x, top: rulerBox.y, width: rulerBox.w, height: rulerBox.h }}
+        >
+          <span className="bg-indigo-600 text-white text-[10px] px-1 rounded shadow font-bold">
+            {Math.round(rulerBox.w)} x {Math.round(rulerBox.h)}
+          </span>
+        </div>
+      )}
 
       {/* Global Style Injection */}
       {toggles.outline && <style>{`* { outline: none !important; }`}</style>}

@@ -1,10 +1,11 @@
 {
   "name": "ui-debugger-pro",
-  "version": "7.7.9",
+  "version": "7.8.0",
   "description": "Universal UI Debugger for React & Web Apps. Detect overlaps, cutoffs, alignment issues, and 'ghost' elements.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -36,7 +37,8 @@
   },
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch",
+    "watch": "tsup --watch",
+    "dev": "vite",
     "lint": "tsc"
   },
   "keywords": [
@@ -67,6 +69,7 @@
   "devDependencies": {
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "@vitejs/plugin-react": "^5.1.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "tsup": "^8.0.0",

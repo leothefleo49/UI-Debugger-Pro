@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -223,20 +229,34 @@ function injectIntoHTML(file) {
     return false;
   }
   
-  // Inject CDN script
+  // Inject Script (Localhost -> CDN Fallback)
   const script = `
-  <script src="https://cdn.jsdelivr.net/npm/ui-debugger-pro@latest/dist/index.global.js"></script>
   <script>
-    if (window.UIDebuggerPro && window.UIDebuggerPro.UIDebugger) {
-      const container = document.createElement('div');
-      container.id = '__ui_debugger_pro__';
-      document.body.appendChild(container);
-      
-      if (window.React && window.ReactDOM) {
-        const root = ReactDOM.createRoot(container);
-        root.render(React.createElement(window.UIDebuggerPro.UIDebugger));
-      }
-    }
+    (function() {
+      const init = () => {
+        if (window.UIDebuggerPro && window.UIDebuggerPro.UIDebugger) {
+          const container = document.createElement('div');
+          container.id = '__ui_debugger_pro__';
+          document.body.appendChild(container);
+          
+          if (window.React && window.ReactDOM) {
+            const root = ReactDOM.createRoot(container);
+            root.render(React.createElement(window.UIDebuggerPro.UIDebugger));
+          }
+        }
+      };
+
+      const load = (src) => {
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = init;
+        s.onerror = () => {
+          if (src.includes('localhost')) load('https://cdn.jsdelivr.net/npm/ui-debugger-pro@latest/dist/index.global.js');
+        };
+        document.body.appendChild(s);
+      };
+      load('http://localhost:8989/bundle.js');
+    })();
   </script>`;
   
   if (content.includes('</body>')) {
@@ -255,8 +275,20 @@ function injectIntoHTML(file) {
 function install() {
   log('📦 Installing ui-debugger-pro...', 'info');
   const pm = detectPackageManager();
-  const cmd = pm === 'npm' ? 'npm install ui-debugger-pro' : 
-              pm === 'yarn' ? 'yarn add ui-debugger-pro' : 'pnpm add ui-debugger-pro';
+  
+  let packageToInstall = 'ui-debugger-pro';
+  
+  // Smart Local Dev: If running from source (not node_modules), install from local path
+  if (!__dirname.includes('node_modules')) {
+     const sourceRoot = path.resolve(__dirname, '..');
+     if (fs.existsSync(path.join(sourceRoot, 'package.json'))) {
+        packageToInstall = sourceRoot;
+        log(`📦 Detected local source. Installing from ${packageToInstall}...`, 'info');
+     }
+  }
+
+  const cmd = pm === 'npm' ? `npm install ${packageToInstall}` : 
+              pm === 'yarn' ? `yarn add ${packageToInstall}` : `pnpm add ${packageToInstall}`;
   
   try {
     execSync(cmd, { stdio: 'inherit' });
@@ -475,9 +507,19 @@ function start() {
 
   if (!deps['ui-debugger-pro']) {
     log('📦 Installing temporary dependency (ui-debugger-pro)...', 'info');
-    const installCmd = pmForInstall === 'npm' ? 'npm install ui-debugger-pro --no-save' : 
-                       pmForInstall === 'yarn' ? 'yarn add ui-debugger-pro --dev' : 
-                       'pnpm add ui-debugger-pro -D';
+    
+    let packageToInstall = 'ui-debugger-pro';
+    // Smart Local Dev: If running from source, install from local path
+    if (!__dirname.includes('node_modules')) {
+       const sourceRoot = path.resolve(__dirname, '..');
+       if (fs.existsSync(path.join(sourceRoot, 'package.json'))) {
+          packageToInstall = sourceRoot;
+       }
+    }
+
+    const installCmd = pmForInstall === 'npm' ? `npm install ${packageToInstall} --no-save` : 
+                       pmForInstall === 'yarn' ? `yarn add ${packageToInstall} --dev` : 
+                       `pnpm add ${packageToInstall} -D`;
     try {
       execSync(installCmd, { stdio: 'inherit' });
       wasInstalledByStart = true;
@@ -510,7 +552,20 @@ function start() {
 
     if (req.url === '/health') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'ok', version: '7.7.9' }));
+      res.end(JSON.stringify({ status: 'ok', version: '7.8.0' }));
+      return;
+    }
+
+    // Serve local bundle for development
+    if (req.url === '/bundle.js') {
+      const bundlePath = path.join(__dirname, '../dist/index.global.js');
+      if (fs.existsSync(bundlePath)) {
+        res.writeHead(200, { 'Content-Type': 'application/javascript' });
+        fs.createReadStream(bundlePath).pipe(res);
+      } else {
+        res.writeHead(404);
+        res.end('Bundle not found');
+      }
       return;
     }
 
