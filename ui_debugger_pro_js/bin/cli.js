@@ -64,6 +64,8 @@ function findProjectRoot() {
     'client',
     'frontend',
     'web',
+    'ui_debugger_pro_js',
+    'ui_debugger_pro_pkg',
   ];
   
   for (const dir of searchDirs) {

@@ -109,7 +109,7 @@ def start(args):
     
     # If not found above, search DOWN in subdirectories
     if not project_root:
-        project_dirs = ['.', 'app', 'App', 'src', 'backend', 'server', 'client', 'frontend', 'web']
+        project_dirs = ['.', 'app', 'App', 'src', 'backend', 'server', 'client', 'frontend', 'web', 'ui_debugger_pro_js', 'ui_debugger_pro_pkg']
         
         for dir_name in project_dirs:
             if not os.path.exists(dir_name):
