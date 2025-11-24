@@ -32,8 +32,11 @@ function findProjectRoot() {
   let currentDir = process.cwd();
   const root = path.parse(currentDir).root;
   
-  while (currentDir !== root) {
+  // log(`DEBUG: Searching up from ${currentDir}`, 'info');
+
+  while (currentDir && currentDir !== root) {
     const pkgPath = path.join(currentDir, 'package.json');
+    // log(`DEBUG: Checking ${pkgPath}`, 'info');
     if (fs.existsSync(pkgPath)) {
       try {
         const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
@@ -48,7 +51,9 @@ function findProjectRoot() {
         // Skip invalid package.json
       }
     }
-    currentDir = path.dirname(currentDir);
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) break; // Prevent infinite loop at root
+    currentDir = parentDir;
   }
   
   // If not found above, search DOWN in common subdirectories
@@ -287,8 +292,8 @@ function install() {
      }
   }
 
-  const cmd = pm === 'npm' ? `npm install ${packageToInstall}` : 
-              pm === 'yarn' ? `yarn add ${packageToInstall}` : `pnpm add ${packageToInstall}`;
+  const cmd = pm === 'npm' ? `npm install "${packageToInstall}"` : 
+              pm === 'yarn' ? `yarn add "${packageToInstall}"` : `pnpm add "${packageToInstall}"`;
   
   try {
     execSync(cmd, { stdio: 'inherit' });
@@ -488,9 +493,9 @@ function start() {
        }
     }
 
-    const installCmd = pmForInstall === 'npm' ? `npm install ${packageToInstall} --no-save` : 
-                       pmForInstall === 'yarn' ? `yarn add ${packageToInstall} --dev` : 
-                       `pnpm add ${packageToInstall} -D`;
+    const installCmd = pmForInstall === 'npm' ? `npm install "${packageToInstall}" --no-save` : 
+                     pmForInstall === 'yarn' ? `yarn add "${packageToInstall}" --dev` : 
+                     `pnpm add "${packageToInstall}" -D`;
     try {
       execSync(installCmd, { stdio: 'inherit' });
       wasInstalledByStart = true;
@@ -594,6 +599,13 @@ function start() {
   });
 
   const PORT = 8989;
+  server.on('error', (e) => {
+    if (e.code === 'EADDRINUSE') {
+      log(`⚠️  Port ${PORT} is in use. Control server skipped (CLI might already be running).`, 'warn');
+    } else {
+      console.error(e);
+    }
+  });
   server.listen(PORT, () => {
     // log(`🔌 Control Server running on port ${PORT}`, 'info');
   });
@@ -661,9 +673,6 @@ if (command === 'init') {
 } else if (command === 'start') {
   start();
 } else if (command === 'remove') {
-  remove();
-  log('\n👋 UI Debugger Pro has been removed.', 'success');
-} else if (command === 'help') {
   remove();
   log('\n👋 UI Debugger Pro has been removed.', 'success');
 } else if (command === 'help') {
