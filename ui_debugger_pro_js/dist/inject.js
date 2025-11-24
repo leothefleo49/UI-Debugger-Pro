@@ -73,8 +73,10 @@ function UIDebugger() {
       // Contrast Checker
       edit: false,
       // Design Mode (Edit Text)
-      images: false
+      images: false,
       // Highlight Images
+      gridOverlay: false
+      // New Grid Overlay
     };
   });
   (0, import_react.useEffect)(() => {
@@ -228,6 +230,23 @@ function UIDebugger() {
       }
     }
   }, []);
+  const saveSnippet = async (code, type, selector) => {
+    try {
+      const res = await fetch("http://localhost:8989/save-snippet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, type, selector })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Snippet saved to: ${data.path}`);
+      } else {
+        alert("Failed to save snippet.");
+      }
+    } catch (e) {
+      alert("Could not connect to CLI server. Is it running?");
+    }
+  };
   (0, import_react.useEffect)(() => {
     if (!autoSave || isPaused) return;
     const interval = setInterval(() => saveLogsToServer(true), 3e4);
@@ -673,7 +692,7 @@ ${url}`);
         onChange: (e) => setToggles((prev) => ({ ...prev, [key]: e.target.checked })),
         className: "w-3 h-3"
       }
-    ), /* @__PURE__ */ import_react.default.createElement("span", { className: `capitalize truncate ${active ? "text-red-200 font-bold" : "text-slate-400"}` }, key))))),
+    ), /* @__PURE__ */ import_react.default.createElement("span", { className: `capitalize truncate ${active ? "text-red-200 font-bold" : "text-slate-400"}` }, key.replace(/([A-Z])/g, " $1").trim()))))),
     /* @__PURE__ */ import_react.default.createElement("div", { className: "flex border-b border-slate-700 bg-slate-800/30 shrink-0" }, ["live", "suspects", "audit", "design", "rules", "settings"].map((tab) => /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
@@ -862,7 +881,37 @@ ${url}`);
         className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
         onChange: (e) => selectedElement.style.padding = e.target.value
       }
-    ))), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Display"), /* @__PURE__ */ import_react.default.createElement(
+    ))), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Font Size (px)"), /* @__PURE__ */ import_react.default.createElement(
+      "input",
+      {
+        type: "number",
+        placeholder: "16",
+        className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
+        onChange: (e) => selectedElement.style.fontSize = `${e.target.value}px`
+      }
+    )), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Font Weight"), /* @__PURE__ */ import_react.default.createElement(
+      "select",
+      {
+        className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
+        onChange: (e) => selectedElement.style.fontWeight = e.target.value
+      },
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "" }, "Select..."),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "100" }, "Thin (100)"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "400" }, "Normal (400)"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "700" }, "Bold (700)"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "900" }, "Black (900)")
+    ))), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Classes"), /* @__PURE__ */ import_react.default.createElement(
+      "input",
+      {
+        type: "text",
+        defaultValue: selectedElement.className,
+        className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full font-mono",
+        onBlur: (e) => selectedElement.className = e.target.value,
+        onKeyDown: (e) => {
+          if (e.key === "Enter") selectedElement.className = e.target.value;
+        }
+      }
+    )), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Display"), /* @__PURE__ */ import_react.default.createElement(
       "select",
       {
         className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
@@ -874,6 +923,60 @@ ${url}`);
       /* @__PURE__ */ import_react.default.createElement("option", { value: "grid" }, "Grid"),
       /* @__PURE__ */ import_react.default.createElement("option", { value: "inline-block" }, "Inline Block"),
       /* @__PURE__ */ import_react.default.createElement("option", { value: "none" }, "None")
+    )), /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Border Radius"), /* @__PURE__ */ import_react.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react.default.createElement(
+      "input",
+      {
+        type: "range",
+        min: "0",
+        max: "50",
+        className: "flex-1 h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer",
+        onChange: (e) => selectedElement.style.borderRadius = `${e.target.value}px`
+      }
+    ), /* @__PURE__ */ import_react.default.createElement(
+      "input",
+      {
+        type: "text",
+        placeholder: "px",
+        className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-12",
+        onChange: (e) => selectedElement.style.borderRadius = e.target.value
+      }
+    ))), window.getComputedStyle(selectedElement).display === "flex" && /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-900/50 p-1 rounded" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 block mb-1" }, "Flex Alignment"), /* @__PURE__ */ import_react.default.createElement("div", { className: "grid grid-cols-2 gap-1" }, /* @__PURE__ */ import_react.default.createElement(
+      "select",
+      {
+        className: "bg-slate-800 border border-slate-600 rounded px-1 text-[9px]",
+        onChange: (e) => selectedElement.style.justifyContent = e.target.value
+      },
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "flex-start" }, "Justify: Start"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "center" }, "Justify: Center"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "flex-end" }, "Justify: End"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "space-between" }, "Justify: Between")
+    ), /* @__PURE__ */ import_react.default.createElement(
+      "select",
+      {
+        className: "bg-slate-800 border border-slate-600 rounded px-1 text-[9px]",
+        onChange: (e) => selectedElement.style.alignItems = e.target.value
+      },
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "stretch" }, "Align: Stretch"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "center" }, "Align: Center"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "flex-start" }, "Align: Start"),
+      /* @__PURE__ */ import_react.default.createElement("option", { value: "flex-end" }, "Align: End")
+    ))), /* @__PURE__ */ import_react.default.createElement("div", { className: "pt-2 border-t border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex justify-between items-center mb-1" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "text-[9px] text-slate-500 font-bold" }, "Generated CSS"), /* @__PURE__ */ import_react.default.createElement(
+      "button",
+      {
+        onClick: () => {
+          const css = selectedElement.getAttribute("style");
+          saveSnippet(css, "css", selectedElement.tagName.toLowerCase() + (selectedElement.className ? "." + selectedElement.className.split(" ").join(".") : ""));
+        },
+        className: "bg-green-700 hover:bg-green-600 text-white px-2 py-0.5 rounded text-[9px]"
+      },
+      "\u{1F4BE} Save to File"
+    )), /* @__PURE__ */ import_react.default.createElement(
+      "textarea",
+      {
+        readOnly: true,
+        className: "w-full h-16 bg-black/50 border border-slate-700 rounded p-1 text-[9px] font-mono text-green-300",
+        value: selectedElement.getAttribute("style") || ""
+      }
     ))), /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-slate-800 p-2 rounded border border-slate-700" }, /* @__PURE__ */ import_react.default.createElement("label", { className: "flex items-center gap-2 cursor-pointer" }, /* @__PURE__ */ import_react.default.createElement(
       "input",
       {
@@ -960,6 +1063,10 @@ ${url}`);
     toggles.background && /* @__PURE__ */ import_react.default.createElement("style", null, `* { background-color: transparent !important; background: none !important; }`),
     toggles.layout && /* @__PURE__ */ import_react.default.createElement("style", null, `* { outline: 1px solid rgba(255, 0, 0, 0.2) !important; }`),
     toggles.images && /* @__PURE__ */ import_react.default.createElement("style", null, `img { outline: 5px solid magenta !important; filter: grayscale(100%) !important; }`),
+    toggles.gridOverlay && /* @__PURE__ */ import_react.default.createElement("div", { className: "fixed inset-0 z-[9998] pointer-events-none", style: {
+      backgroundImage: "linear-gradient(to right, rgba(128,128,128,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(128,128,128,0.1) 1px, transparent 1px)",
+      backgroundSize: "20px 20px"
+    } }),
     animationSpeed !== 1 && /* @__PURE__ */ import_react.default.createElement("style", null, `* { animation-duration: ${1 / animationSpeed}s !important; transition-duration: ${1 / animationSpeed}s !important; }`),
     /* @__PURE__ */ import_react.default.createElement("style", null, targetedRules.map((r) => `${r.selector} { ${r.property}: ${r.value}; }`).join("\n"))
   );
@@ -1018,12 +1125,31 @@ if (typeof window !== "undefined") {
   import("react").then((React2) => {
     import("react-dom/client").then(({ createRoot: createRoot2 }) => {
       Promise.resolve().then(() => (init_index(), index_exports)).then(({ UIDebugger: UIDebugger2 }) => {
-        const container = document.createElement("div");
-        container.id = "__ui_debugger_pro_root__";
-        container.style.cssText = "position:fixed;z-index:99999;top:0;left:0;width:0;height:0;";
-        document.body.appendChild(container);
-        const root = createRoot2(container);
-        root.render(React2.createElement(UIDebugger2));
+        if (!window.React || !window.ReactDOM) {
+          const reactScript = document.createElement("script");
+          reactScript.src = "https://unpkg.com/react@18/umd/react.production.min.js";
+          reactScript.crossOrigin = "anonymous";
+          const reactDomScript = document.createElement("script");
+          reactDomScript.src = "https://unpkg.com/react-dom@18/umd/react-dom.production.min.js";
+          reactDomScript.crossOrigin = "anonymous";
+          reactScript.onload = () => {
+            document.head.appendChild(reactDomScript);
+          };
+          reactDomScript.onload = () => {
+            mountDebugger();
+          };
+          document.head.appendChild(reactScript);
+        } else {
+          mountDebugger();
+        }
+        function mountDebugger() {
+          const container = document.createElement("div");
+          container.id = "__ui_debugger_pro_root__";
+          container.style.cssText = "position:fixed;z-index:99999;top:0;left:0;width:0;height:0;";
+          document.body.appendChild(container);
+          const root = window.ReactDOM.createRoot(container);
+          root.render(window.React.createElement(UIDebugger2));
+        }
       });
     });
   });

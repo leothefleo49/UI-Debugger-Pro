@@ -1,0 +1,8 @@
+{
+  "enabled": false,
+  "log_dir": "ui_debug_logs",
+  "max_logs": 50,
+  "auto_delete_days": 7,
+  "theme": "dark",
+  "terminal_mode": false
+}

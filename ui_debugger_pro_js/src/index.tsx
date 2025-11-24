@@ -71,6 +71,7 @@ export function UIDebugger() {
       contrast: false, // Contrast Checker
       edit: false, // Design Mode (Edit Text)
       images: false, // Highlight Images
+      gridOverlay: false, // New Grid Overlay
     };
   });
 
@@ -228,6 +229,24 @@ export function UIDebugger() {
       }
     }
   }, []);
+
+  const saveSnippet = async (code, type, selector) => {
+    try {
+      const res = await fetch('http://localhost:8989/save-snippet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, type, selector })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Snippet saved to: ${data.path}`);
+      } else {
+        alert('Failed to save snippet.');
+      }
+    } catch (e) {
+      alert('Could not connect to CLI server. Is it running?');
+    }
+  };
 
   // --- Auto-Save Logic ---
   useEffect(() => {
@@ -802,7 +821,7 @@ export function UIDebugger() {
                 onChange={e => setToggles(prev => ({ ...prev, [key]: e.target.checked }))}
                 className="w-3 h-3"
               />
-              <span className={`capitalize truncate ${active ? 'text-red-200 font-bold' : 'text-slate-400'}`}>{key}</span>
+              <span className={`capitalize truncate ${active ? 'text-red-200 font-bold' : 'text-slate-400'}`}>{key.replace(/([A-Z])/g, ' $1').trim()}</span>
             </label>
           ))}
         </div>
@@ -1183,6 +1202,44 @@ export function UIDebugger() {
                     </div>
                   </div>
 
+                  {/* Typography */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[9px] text-slate-500 block">Font Size (px)</label>
+                      <input 
+                        type="number" 
+                        placeholder="16"
+                        className="bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full"
+                        onChange={(e) => selectedElement.style.fontSize = `${e.target.value}px`}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] text-slate-500 block">Font Weight</label>
+                      <select 
+                        className="bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full"
+                        onChange={(e) => selectedElement.style.fontWeight = e.target.value}
+                      >
+                        <option value="">Select...</option>
+                        <option value="100">Thin (100)</option>
+                        <option value="400">Normal (400)</option>
+                        <option value="700">Bold (700)</option>
+                        <option value="900">Black (900)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Classes */}
+                  <div>
+                    <label className="text-[9px] text-slate-500 block">Classes</label>
+                    <input 
+                      type="text" 
+                      defaultValue={selectedElement.className}
+                      className="bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full font-mono"
+                      onBlur={(e) => selectedElement.className = e.target.value}
+                      onKeyDown={(e) => { if(e.key === 'Enter') selectedElement.className = (e.target as HTMLInputElement).value; }}
+                    />
+                  </div>
+
                   {/* Layout */}
                   <div>
                      <label className="text-[9px] text-slate-500 block">Display</label>
@@ -1197,6 +1254,72 @@ export function UIDebugger() {
                        <option value="inline-block">Inline Block</option>
                        <option value="none">None</option>
                      </select>
+                  </div>
+
+                  {/* Border Radius */}
+                  <div>
+                    <label className="text-[9px] text-slate-500 block">Border Radius</label>
+                    <div className="flex items-center gap-2">
+                      <input 
+                        type="range" min="0" max="50" 
+                        className="flex-1 h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer"
+                        onChange={(e) => selectedElement.style.borderRadius = `${e.target.value}px`}
+                      />
+                      <input 
+                        type="text" 
+                        placeholder="px"
+                        className="bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-12"
+                        onChange={(e) => selectedElement.style.borderRadius = e.target.value}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Flex Controls (Only if Flex) */}
+                  {window.getComputedStyle(selectedElement).display === 'flex' && (
+                    <div className="bg-slate-900/50 p-1 rounded">
+                      <label className="text-[9px] text-slate-500 block mb-1">Flex Alignment</label>
+                      <div className="grid grid-cols-2 gap-1">
+                        <select 
+                          className="bg-slate-800 border border-slate-600 rounded px-1 text-[9px]"
+                          onChange={(e) => selectedElement.style.justifyContent = e.target.value}
+                        >
+                          <option value="flex-start">Justify: Start</option>
+                          <option value="center">Justify: Center</option>
+                          <option value="flex-end">Justify: End</option>
+                          <option value="space-between">Justify: Between</option>
+                        </select>
+                        <select 
+                          className="bg-slate-800 border border-slate-600 rounded px-1 text-[9px]"
+                          onChange={(e) => selectedElement.style.alignItems = e.target.value}
+                        >
+                          <option value="stretch">Align: Stretch</option>
+                          <option value="center">Align: Center</option>
+                          <option value="flex-start">Align: Start</option>
+                          <option value="flex-end">Align: End</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Code View & Save */}
+                  <div className="pt-2 border-t border-slate-700">
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-[9px] text-slate-500 font-bold">Generated CSS</label>
+                      <button 
+                        onClick={() => {
+                          const css = selectedElement.getAttribute('style');
+                          saveSnippet(css, 'css', selectedElement.tagName.toLowerCase() + (selectedElement.className ? '.' + selectedElement.className.split(' ').join('.') : ''));
+                        }}
+                        className="bg-green-700 hover:bg-green-600 text-white px-2 py-0.5 rounded text-[9px]"
+                      >
+                        💾 Save to File
+                      </button>
+                    </div>
+                    <textarea 
+                      readOnly
+                      className="w-full h-16 bg-black/50 border border-slate-700 rounded p-1 text-[9px] font-mono text-green-300"
+                      value={selectedElement.getAttribute('style') || ''}
+                    />
                   </div>
                 </div>
 
@@ -1361,6 +1484,12 @@ export function UIDebugger() {
       {/* New Feature Styles */}
       {toggles.layout && <style>{`* { outline: 1px solid rgba(255, 0, 0, 0.2) !important; }`}</style>}
       {toggles.images && <style>{`img { outline: 5px solid magenta !important; filter: grayscale(100%) !important; }`}</style>}
+      {toggles.gridOverlay && (
+        <div className="fixed inset-0 z-[9998] pointer-events-none" style={{ 
+          backgroundImage: 'linear-gradient(to right, rgba(128,128,128,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(128,128,128,0.1) 1px, transparent 1px)',
+          backgroundSize: '20px 20px'
+        }}></div>
+      )}
       {animationSpeed !== 1 && <style>{`* { animation-duration: ${1/animationSpeed}s !important; transition-duration: ${1/animationSpeed}s !important; }`}</style>}
 
       {/* Targeted Style Injection */}

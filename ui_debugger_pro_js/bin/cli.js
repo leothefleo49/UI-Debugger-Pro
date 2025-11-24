@@ -535,6 +535,34 @@ function start() {
       return;
     }
 
+    if (req.url === '/save-snippet' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk.toString());
+      req.on('end', () => {
+        try {
+          const { code, type, selector } = JSON.parse(body);
+          const snippetDir = path.join(process.cwd(), 'ui-debug-snippets');
+          if (!fs.existsSync(snippetDir)) fs.mkdirSync(snippetDir);
+          
+          const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+          const filename = `snippet-${timestamp}.${type === 'css' ? 'css' : 'txt'}`;
+          const filePath = path.join(snippetDir, filename);
+          
+          const content = `/* Selector: ${selector} */\n${code}\n`;
+          
+          fs.writeFileSync(filePath, content);
+          log(`💾 Saved snippet to ${filePath}`, 'success');
+          
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, path: filePath }));
+        } catch (e) {
+          res.writeHead(500);
+          res.end(JSON.stringify({ error: e.message }));
+        }
+      });
+      return;
+    }
+
     res.writeHead(404);
     res.end();
   });
