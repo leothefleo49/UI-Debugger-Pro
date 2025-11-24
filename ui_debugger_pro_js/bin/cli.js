@@ -22,7 +22,30 @@ function log(msg, type = 'info') {
 }
 
 function findProjectRoot() {
-  // Search for package.json with scripts in current dir and common subdirectories
+  // First, search UP the directory tree for package.json
+  let currentDir = process.cwd();
+  const root = path.parse(currentDir).root;
+  
+  while (currentDir !== root) {
+    const pkgPath = path.join(currentDir, 'package.json');
+    if (fs.existsSync(pkgPath)) {
+      try {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        if (pkg.scripts && Object.keys(pkg.scripts).length > 0) {
+          const relativePath = path.relative(process.cwd(), currentDir);
+          if (relativePath) {
+            log(`✅ Found project in parent directory: ${relativePath || currentDir}`, 'success');
+          }
+          return currentDir;
+        }
+      } catch (e) {
+        // Skip invalid package.json
+      }
+    }
+    currentDir = path.dirname(currentDir);
+  }
+  
+  // If not found above, search DOWN in common subdirectories
   const searchDirs = [
     '.',
     'app', 'App',
@@ -37,12 +60,12 @@ function findProjectRoot() {
     if (fs.existsSync(pkgPath)) {
       try {
         const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-        // Must have scripts to be a valid project
         if (pkg.scripts && Object.keys(pkg.scripts).length > 0) {
+          const fullPath = path.resolve(dir);
           if (dir !== '.') {
-            log(`✅ Found project in: ${dir}`, 'success');
+            log(`✅ Found project in subdirectory: ${dir}`, 'success');
           }
-          return dir;
+          return fullPath;
         }
       } catch (e) {
         // Skip invalid package.json
@@ -406,21 +429,24 @@ function findProjectRoot() {
 
 function start() {
   log('🚀 Starting UI Debugger Pro - Universal Zero-Config Mode...', 'info');
-  log('🔎 Auto-detecting project type and configuration...', 'info');
+  log('🔎 Searching for project (checking parent & child directories)...', 'info');
   
-  // 0. Find the actual project directory
+  // 0. Find the actual project directory (search up and down)
   const projectRoot = findProjectRoot();
   
   if (!projectRoot) {
     log('❌ Could not find a Node.js project with scripts', 'error');
-    log('💡 Make sure package.json exists with a "dev" or "start" script', 'info');
+    log('💡 Make sure you\'re near a project with package.json containing scripts', 'info');
+    log('💡 Searched: parent directories and subdirectories (app/, App/, src/, client/, frontend/, web/)', 'info');
     return;
   }
   
-  if (projectRoot !== '.') {
-    log(`📂 Switching to project directory: ${projectRoot}`, 'info');
-    process.chdir(projectRoot);
+  // Switch to project directory
+  const relativePath = path.relative(process.cwd(), projectRoot);
+  if (relativePath && relativePath !== '.') {
+    log(`📂 Switching to project directory: ${relativePath}`, 'info');
   }
+  process.chdir(projectRoot);
   
   // 1. Inject
   const injected = injectCode();

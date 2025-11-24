@@ -58,50 +58,98 @@ def clean():
 def start(args):
     """Start your app with UI Debugger injected (Universal Zero Config).
     
-    Works from ANY directory - automatically finds your project!
+    Run from ANYWHERE - automatically finds your project!
     
     Usage: 
-        ui-debugger start                    # Run from anywhere in your project
-        ui-debugger start -- <your-command>  # Explicit command (optional)
+        ui-debugger start    # Run from any directory near your project
     
     Supports: Django, Flask, FastAPI, Next.js, React, Vue, PHP, Ruby, HTML, and more!
     """
     click.echo("🚀 UI Debugger Pro - Universal Zero-Config Mode")
-    click.echo("🔎 Auto-detecting project type...")
+    click.echo("🔎 Searching for project (checking parent & child directories)...")
     
-    # 0. Find the actual project directory
-    project_dirs = ['.', 'app', 'App', 'src', 'backend', 'server', 'client', 'frontend', 'web']
+    # 0. Find the actual project directory - search UP and DOWN
     project_root = None
     
-    for dir_name in project_dirs:
-        if not os.path.exists(dir_name):
-            continue
-            
+    # First search UP the directory tree
+    current_dir = os.getcwd()
+    while True:
         # Check for Node.js project
-        pkg_json = os.path.join(dir_name, 'package.json')
+        pkg_json = os.path.join(current_dir, 'package.json')
         if os.path.exists(pkg_json):
             try:
                 with open(pkg_json, 'r') as f:
                     pkg = __import__('json').load(f)
                     if 'scripts' in pkg and pkg['scripts']:
-                        project_root = dir_name
+                        project_root = current_dir
+                        rel_path = os.path.relpath(current_dir, os.getcwd())
+                        if rel_path != '.':
+                            click.echo(f"✅ Found project in parent directory: {rel_path}")
                         break
             except:
                 pass
         
         # Check for Python project markers
         for marker in ['manage.py', 'app.py', 'main.py', 'requirements.txt', 'pyproject.toml']:
-            if os.path.exists(os.path.join(dir_name, marker)):
-                project_root = dir_name
+            if os.path.exists(os.path.join(current_dir, marker)):
+                project_root = current_dir
+                rel_path = os.path.relpath(current_dir, os.getcwd())
+                if rel_path != '.':
+                    click.echo(f"✅ Found project in parent directory: {rel_path}")
                 break
         
         if project_root:
             break
+        
+        # Move up one directory
+        parent = os.path.dirname(current_dir)
+        if parent == current_dir:  # Reached root
+            break
+        current_dir = parent
+    
+    # If not found above, search DOWN in subdirectories
+    if not project_root:
+        project_dirs = ['.', 'app', 'App', 'src', 'backend', 'server', 'client', 'frontend', 'web']
+        
+        for dir_name in project_dirs:
+            if not os.path.exists(dir_name):
+                continue
+                
+            # Check for Node.js project
+            pkg_json = os.path.join(dir_name, 'package.json')
+            if os.path.exists(pkg_json):
+                try:
+                    with open(pkg_json, 'r') as f:
+                        pkg = __import__('json').load(f)
+                        if 'scripts' in pkg and pkg['scripts']:
+                            project_root = dir_name
+                            if dir_name != '.':
+                                click.echo(f"✅ Found project in subdirectory: {dir_name}")
+                            break
+                except:
+                    pass
+            
+            # Check for Python project markers
+            for marker in ['manage.py', 'app.py', 'main.py', 'requirements.txt', 'pyproject.toml']:
+                if os.path.exists(os.path.join(dir_name, marker)):
+                    project_root = dir_name
+                    if dir_name != '.':
+                        click.echo(f"✅ Found project in subdirectory: {dir_name}")
+                    break
+            
+            if project_root:
+                break
+    
+    # Check if project was found
+    if not project_root:
+        click.echo("❌ Could not find a project")
+        click.echo("💡 Make sure you're near a project directory")
+        click.echo("💡 Searched: parent directories and subdirectories (app/, App/, src/, etc.)")
+        return
     
     # Switch to project directory
-    if project_root and project_root != '.':
-        click.echo(f"📂 Detected project in subdirectory: {project_root}")
-        click.echo("🔄 Switching to project directory...")
+    if project_root != '.':
+        click.echo(f"📂 Switching to project directory: {project_root}")
         os.chdir(project_root)
     
     injected_file = None
