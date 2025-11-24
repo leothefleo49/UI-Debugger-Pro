@@ -34,7 +34,7 @@ Want to debug a site without changing the code? Create a bookmark in your browse
 **Copy this code and paste it into a new Bookmark's URL field:**
 
 ```javascript
-javascript:(function(){var s=document.createElement('script');s.src='https://unpkg.com/ui-debugger-pro/dist/index.global.js';s.onload=function(){var r=document.createElement('script');r.src='https://unpkg.com/react@18/umd/react.production.min.js';r.onload=function(){var d=document.createElement('script');d.src='https://unpkg.com/react-dom@18/umd/react-dom.production.min.js';d.onload=function(){window.mountUIDebugger()};document.body.appendChild(d)};document.body.appendChild(r)};document.body.appendChild(s)})();
+javascript:(function(){function l(u,c){var s=document.createElement('script');s.src=u;s.onload=c;document.body.appendChild(s)}if(!window.React){l('https://unpkg.com/react@18/umd/react.production.min.js',function(){l('https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',function(){l('https://unpkg.com/ui-debugger-pro/dist/index.global.js',function(){window.mountUIDebugger()})})})}else{l('https://unpkg.com/ui-debugger-pro/dist/index.global.js',function(){window.mountUIDebugger()})}})();
 ```
 
 **How to use:**

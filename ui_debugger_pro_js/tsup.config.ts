@@ -9,6 +9,4 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   external: ['react', 'react-dom'],
-  // Inject React for the IIFE build so it works standalone
-  noExternal: ['react', 'react-dom'], 
 });

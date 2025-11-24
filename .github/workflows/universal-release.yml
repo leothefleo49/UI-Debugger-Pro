@@ -1,0 +1,111 @@
+name: Universal Release & Deploy
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  # 1. Build & Publish NPM Package (React / Vite / Script Tag / Bookmarklet Source)
+  publish-npm:
+    name: Publish NPM (JS/React)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - name: Install Dependencies
+        run: |
+          cd ui_debugger_pro_js
+          npm ci
+      
+      - name: Build (Generates dist/index.global.js for CDN)
+        run: |
+          cd ui_debugger_pro_js
+          npm run build
+      
+      - name: Publish to NPM
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd ui_debugger_pro_js
+          # Only publish if version doesn't exist, or allow fail
+          npm publish --access public || echo "Version already exists or publish failed"
+
+  # 2. Build & Publish PyPI Package (Python / Flask / Django)
+  publish-pypi:
+    name: Publish PyPI (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install Build Tools
+        run: |
+          python -m pip install --upgrade pip build twine
+      
+      - name: Build Package
+        run: |
+          cd ui_debugger_pro_pkg
+          python -m build
+      
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          cd ui_debugger_pro_pkg
+          # Only publish if version doesn't exist
+          python -m twine upload dist/* --skip-existing
+
+  # 3. Package Browser Extension (Chrome / Edge)
+  package-extension:
+    name: Package Browser Extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Zip Extension
+        run: |
+          cd ui_debugger_pro_ext
+          zip -r ../ui-debugger-pro-extension.zip ./*
+      
+      - name: Upload Extension Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-debugger-pro-extension
+          path: ui-debugger-pro-extension.zip
+
+  # 4. Create GitHub Release (Consolidates everything)
+  create-release:
+    name: Create GitHub Release
+    needs: [publish-npm, publish-pypi, package-extension]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download Extension Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ui-debugger-pro-extension
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ui-debugger-pro-extension.zip
+            ui_debugger_pro_js/dist/index.global.js
+          generate_release_notes: true
