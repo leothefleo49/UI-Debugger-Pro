@@ -1274,6 +1274,69 @@ export function UIDebugger() {
                     </div>
                   </div>
 
+                  {/* Box Shadow */}
+                  <div>
+                    <label className="text-[9px] text-slate-500 block">Box Shadow</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. 0 4px 6px rgba(0,0,0,0.1)"
+                      className="bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full"
+                      onChange={(e) => selectedElement.style.boxShadow = e.target.value}
+                    />
+                  </div>
+
+                  {/* Opacity */}
+                  <div>
+                    <label className="text-[9px] text-slate-500 block">Opacity</label>
+                    <div className="flex items-center gap-2">
+                      <input 
+                        type="range" min="0" max="1" step="0.1"
+                        defaultValue={window.getComputedStyle(selectedElement).opacity}
+                        className="flex-1 h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer"
+                        onChange={(e) => selectedElement.style.opacity = e.target.value}
+                      />
+                      <span className="text-[9px] text-slate-400 w-6 text-right">
+                        {selectedElement.style.opacity || window.getComputedStyle(selectedElement).opacity}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Transform */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[9px] text-slate-500 block">Scale</label>
+                      <input 
+                        type="number" step="0.1" placeholder="1"
+                        className="bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full"
+                        onChange={(e) => {
+                           const val = e.target.value;
+                           const currentTransform = selectedElement.style.transform || '';
+                           if (currentTransform.includes('scale')) {
+                             selectedElement.style.transform = currentTransform.replace(/scale\([^)]+\)/, `scale(${val})`);
+                           } else {
+                             selectedElement.style.transform = `${currentTransform} scale(${val})`.trim();
+                           }
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] text-slate-500 block">Rotate (deg)</label>
+                      <input 
+                        type="number" placeholder="0"
+                        className="bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full"
+                        onChange={(e) => {
+                           const val = e.target.value;
+                           const currentTransform = selectedElement.style.transform || '';
+                           if (currentTransform.includes('rotate')) {
+                             selectedElement.style.transform = currentTransform.replace(/rotate\([^)]+\)/, `rotate(${val}deg)`);
+                           } else {
+                             selectedElement.style.transform = `${currentTransform} rotate(${val}deg)`.trim();
+                           }
+                        }}
+                      />
+                    </div>
+                  </div>
+
                   {/* Flex Controls (Only if Flex) */}
                   {window.getComputedStyle(selectedElement).display === 'flex' && (
                     <div className="bg-slate-900/50 p-1 rounded">
@@ -1300,6 +1363,19 @@ export function UIDebugger() {
                       </div>
                     </div>
                   )}
+
+                  {/* Computed Styles Summary */}
+                  <div className="bg-slate-900/30 p-2 rounded border border-slate-700/50">
+                    <label className="text-[9px] text-slate-500 block mb-1 font-bold">Computed Final Values</label>
+                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[9px] font-mono text-slate-400">
+                      <div>W: {selectedElement.getBoundingClientRect().width.toFixed(1)}px</div>
+                      <div>H: {selectedElement.getBoundingClientRect().height.toFixed(1)}px</div>
+                      <div>Col: <span style={{color: window.getComputedStyle(selectedElement).color}}>■</span> {window.getComputedStyle(selectedElement).color}</div>
+                      <div>Bg: <span style={{color: window.getComputedStyle(selectedElement).backgroundColor}}>■</span> {window.getComputedStyle(selectedElement).backgroundColor}</div>
+                      <div>Font: {window.getComputedStyle(selectedElement).fontFamily.split(',')[0]}</div>
+                      <div>Size: {window.getComputedStyle(selectedElement).fontSize}</div>
+                    </div>
+                  </div>
 
                   {/* Code View & Save */}
                   <div className="pt-2 border-t border-slate-700">

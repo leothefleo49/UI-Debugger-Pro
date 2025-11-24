@@ -160,16 +160,21 @@ def start(args):
     # Check if this is a Node.js project
     if os.path.exists('package.json'):
         click.echo("📦 Detected Node.js project - delegating to JavaScript CLI")
-        click.echo("💡 Use: npx ui-debugger-pro start")
-        click.echo("")
         
         # Try to run the JS CLI automatically
         try:
-            import subprocess
-            result = subprocess.run(['npx', 'ui-debugger-pro', 'start'], check=False)
-            return
+            # Check if npx is available
+            if shutil.which('npx'):
+                click.echo("🚀 Executing: npx ui-debugger-pro start")
+                # Use shell=True on Windows to properly resolve npx
+                subprocess.run(['npx', 'ui-debugger-pro', 'start'], check=False, shell=(os.name == 'nt'))
+                return
+            else:
+                click.echo("❌ 'npx' not found in PATH. Please install Node.js.")
+                return
         except Exception as e:
-            click.echo(f"⚠️  Please install Node.js dependencies and run: npx ui-debugger-pro start")
+            click.echo(f"❌ Failed to run JS CLI: {e}")
+            click.echo(f"⚠️  Please run manually: npx ui-debugger-pro start")
             return
     
     # Django Detection
