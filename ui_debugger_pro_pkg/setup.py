@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="ui-debugger-pro",
-    version="7.6.1",
+    version="7.7.0",
     packages=find_packages(),
     include_package_data=True,
     install_requires=[

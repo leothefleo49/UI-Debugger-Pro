@@ -21,10 +21,50 @@ function log(msg, type = 'info') {
   console.log(colors[type] || colors.info, msg);
 }
 
-function detectPackageManager() {
-  if (fs.existsSync('yarn.lock')) return 'yarn';
-  if (fs.existsSync('pnpm-lock.yaml')) return 'pnpm';
-  return 'npm';
+function findProjectRoot() {
+  // Search for package.json with scripts in current dir and common subdirectories
+  const searchDirs = [
+    '.',
+    'app', 'App',
+    'src',
+    'client',
+    'frontend',
+    'web',
+  ];
+  
+  for (const dir of searchDirs) {
+    const pkgPath = path.join(dir, 'package.json');
+    if (fs.existsSync(pkgPath)) {
+      try {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        // Must have scripts to be a valid project
+        if (pkg.scripts && Object.keys(pkg.scripts).length > 0) {
+          if (dir !== '.') {
+            log(`✅ Found project in: ${dir}`, 'success');
+          }
+          return dir;
+        }
+      } catch (e) {
+        // Skip invalid package.json
+      }
+    }
+  }
+  
+  return null;
+}
+
+function detectPackageManager(projectRoot = '.') {
+  const oldCwd = process.cwd();
+  if (projectRoot !== '.') {
+    process.chdir(projectRoot);
+  }
+  
+  let pm = 'npm';
+  if (fs.existsSync('yarn.lock')) pm = 'yarn';
+  else if (fs.existsSync('pnpm-lock.yaml')) pm = 'pnpm';
+  
+  process.chdir(oldCwd);
+  return pm;
 }
 
 function recursiveFindFiles(dir, patterns, maxDepth = 5, currentDepth = 0) {
@@ -113,14 +153,15 @@ function findEntryFile() {
   return null;
 }
 
-function detectDevCommand() {
-  // Check if package.json exists
-  if (!fs.existsSync('package.json')) {
+function detectDevCommand(projectRoot = '.') {
+  const pkgPath = path.join(projectRoot, 'package.json');
+  
+  if (!fs.existsSync(pkgPath)) {
     return null;
   }
   
   try {
-    const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
     const scripts = pkg.scripts || {};
     
     // Priority order for dev commands
@@ -370,9 +411,14 @@ function start() {
   // 0. Find the actual project directory
   const projectRoot = findProjectRoot();
   
-  if (projectRoot && projectRoot !== '.') {
-    log(`📂 Detected project in subdirectory: ${projectRoot}`, 'info');
-    log(`🔄 Switching to project directory...`, 'info');
+  if (!projectRoot) {
+    log('❌ Could not find a Node.js project with scripts', 'error');
+    log('💡 Make sure package.json exists with a "dev" or "start" script', 'info');
+    return;
+  }
+  
+  if (projectRoot !== '.') {
+    log(`📂 Switching to project directory: ${projectRoot}`, 'info');
     process.chdir(projectRoot);
   }
   
@@ -384,7 +430,7 @@ function start() {
   }
   
   // 2. Detect and Run Dev Server
-  const devScript = detectDevCommand();
+  const devScript = detectDevCommand('.');
   
   if (!devScript) {
     log('❌ Could not detect dev command. Please run your dev server manually.', 'error');
@@ -392,7 +438,7 @@ function start() {
     return;
   }
   
-  const pm = detectPackageManager();
+  const pm = detectPackageManager('.');
   const runCmd = pm === 'npm' ? `npm run ${devScript}` : 
                  pm === 'yarn' ? `yarn ${devScript}` : 
                  `pnpm ${devScript}`;
