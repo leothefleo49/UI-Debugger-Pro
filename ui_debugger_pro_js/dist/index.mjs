@@ -90,9 +90,12 @@ function UIDebugger() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [history, setHistory] = useState([]);
   const [activeTab, setActiveTab] = useState("live");
+  const [selectedElement, setSelectedElement] = useState(null);
+  const [dragMode, setDragMode] = useState(false);
   const isPausedRef = useRef(isPaused);
   const configRef = useRef({ trackHover, trackClick, trackFocus, trackSelect });
   const historyRef = useRef(history);
+  const activeTabRef = useRef(activeTab);
   useEffect(() => {
     isPausedRef.current = isPaused;
   }, [isPaused]);
@@ -102,6 +105,9 @@ function UIDebugger() {
   useEffect(() => {
     historyRef.current = history;
   }, [history]);
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+  }, [activeTab]);
   useEffect(() => {
     const config = {
       toggles,
@@ -187,15 +193,24 @@ function UIDebugger() {
     const dataToUse = data || historyRef.current;
     if (dataToUse.length === 0) return;
     try {
-      await fetch("/ui-debugger-pro/logs", {
+      await fetch("http://localhost:8989/logs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToUse)
       });
-      if (!silent) alert("Logs saved to server!");
+      if (!silent) alert("Logs saved to local session!");
     } catch (e) {
-      console.error("Failed to save logs:", e);
-      if (!silent) alert("Failed to save logs to server. Is the Python backend running?");
+      try {
+        await fetch("/ui-debugger-pro/logs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dataToUse)
+        });
+        if (!silent) alert("Logs saved to server!");
+      } catch (e2) {
+        console.error("Failed to save logs:", e2);
+        if (!silent) alert("Failed to save logs. Is the CLI running?");
+      }
     }
   }, []);
   useEffect(() => {
@@ -453,8 +468,32 @@ function UIDebugger() {
     setTargetedRules((prev) => prev.filter((_, i) => i !== index));
   };
   useEffect(() => {
-    const handleMouseOver = (e) => configRef.current.trackHover && captureElement(e.target, "hover");
-    const handleClick = (e) => configRef.current.trackClick && captureElement(e.target, "click");
+    const handleMouseOver = (e) => {
+      if (activeTabRef.current === "design") {
+        if (!e.target.closest("#ui-debugger-pro-root")) {
+          e.target.style.outline = "2px dashed #6366f1";
+          e.target.addEventListener("mouseout", () => {
+            e.target.style.outline = "";
+          }, { once: true });
+        }
+        return;
+      }
+      configRef.current.trackHover && captureElement(e.target, "hover");
+    };
+    const handleClick = (e) => {
+      if (activeTabRef.current === "design") {
+        if (!e.target.closest("#ui-debugger-pro-root")) {
+          e.preventDefault();
+          e.stopPropagation();
+          setSelectedElement(e.target);
+          const prevOutline = e.target.style.outline;
+          e.target.style.outline = "2px solid #6366f1";
+          setTimeout(() => e.target.style.outline = prevOutline, 500);
+        }
+        return;
+      }
+      configRef.current.trackClick && captureElement(e.target, "click");
+    };
     const handleFocus = (e) => configRef.current.trackFocus && captureElement(e.target, "focus");
     const handleSelection = () => {
       if (!configRef.current.trackSelect) return;
@@ -620,7 +659,7 @@ ${url}`);
         className: "w-3 h-3"
       }
     ), /* @__PURE__ */ React.createElement("span", { className: `capitalize truncate ${active ? "text-red-200 font-bold" : "text-slate-400"}` }, key))))),
-    /* @__PURE__ */ React.createElement("div", { className: "flex border-b border-slate-700 bg-slate-800/30 shrink-0" }, ["live", "suspects", "audit", "rules", "settings"].map((tab) => /* @__PURE__ */ React.createElement(
+    /* @__PURE__ */ React.createElement("div", { className: "flex border-b border-slate-700 bg-slate-800/30 shrink-0" }, ["live", "suspects", "audit", "design", "rules", "settings"].map((tab) => /* @__PURE__ */ React.createElement(
       "button",
       {
         key: tab,
@@ -718,7 +757,148 @@ ${url}`);
     }, className: `px-3 py-1 rounded ${simulatorMode === "tablet" ? "bg-indigo-600" : "bg-slate-700"}` }, "Tablet"), /* @__PURE__ */ React.createElement("button", { onClick: () => {
       setSimulatorMode("desktop");
       setCustomSimSize(null);
-    }, className: `px-3 py-1 rounded ${simulatorMode === "desktop" ? "bg-indigo-600" : "bg-slate-700"}` }, "Desktop"), /* @__PURE__ */ React.createElement("div", { className: "w-px h-6 bg-slate-700 mx-2" }), /* @__PURE__ */ React.createElement("input", { type: "range", min: "0.2", max: "1.5", step: "0.1", value: simScale, onChange: (e) => setSimScale(e.target.value), className: "w-24", title: "Zoom" }))), activeTab === "rules" && /* @__PURE__ */ React.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ React.createElement("p", { className: "text-[10px] text-slate-500 uppercase tracking-wider mb-2" }, "Active Targeted Rules"), targetedRules.length === 0 && /* @__PURE__ */ React.createElement("div", { className: "text-center text-slate-600 py-8 italic" }, "No targeted rules active."), targetedRules.map((rule, i) => /* @__PURE__ */ React.createElement("div", { key: i, className: "bg-slate-800 p-2 rounded border border-red-500/30 flex justify-between items-center" }, /* @__PURE__ */ React.createElement("div", { className: "overflow-hidden" }, /* @__PURE__ */ React.createElement("div", { className: "font-mono text-[10px] text-slate-300 truncate", title: rule.selector }, rule.selector), /* @__PURE__ */ React.createElement("div", { className: "text-[9px] text-red-400 font-bold" }, rule.property, ": ", rule.value)), /* @__PURE__ */ React.createElement("button", { onClick: () => removeTargetedRule(i), className: "text-slate-500 hover:text-white px-2" }, "\u2715")))), activeTab === "settings" && /* @__PURE__ */ React.createElement("div", { className: "space-y-4 p-2" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", { className: "font-bold text-slate-400 mb-2" }, "Theme"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-2" }, Object.keys(THEMES).map((t) => /* @__PURE__ */ React.createElement(
+    }, className: `px-3 py-1 rounded ${simulatorMode === "desktop" ? "bg-indigo-600" : "bg-slate-700"}` }, "Desktop"), /* @__PURE__ */ React.createElement("div", { className: "w-px h-6 bg-slate-700 mx-2" }), /* @__PURE__ */ React.createElement("input", { type: "range", min: "0.2", max: "1.5", step: "0.1", value: simScale, onChange: (e) => setSimScale(e.target.value), className: "w-24", title: "Zoom" }))), activeTab === "design" && /* @__PURE__ */ React.createElement("div", { className: "space-y-4" }, !selectedElement ? /* @__PURE__ */ React.createElement("div", { className: "text-center text-slate-500 py-10" }, /* @__PURE__ */ React.createElement("p", { className: "mb-2" }, "\u{1F446} Click any element on the page to edit it."), /* @__PURE__ */ React.createElement("p", { className: "text-[10px]" }, "You can change text, colors, spacing, and position.")) : /* @__PURE__ */ React.createElement("div", { className: "space-y-3" }, /* @__PURE__ */ React.createElement("div", { className: "bg-slate-800 p-2 rounded border border-indigo-500/50" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between items-start mb-1" }, /* @__PURE__ */ React.createElement("span", { className: "font-bold text-indigo-400 text-xs" }, selectedElement.tagName.toLowerCase()), /* @__PURE__ */ React.createElement("button", { onClick: () => setSelectedElement(null), className: "text-slate-500 hover:text-white" }, "\u2715")), /* @__PURE__ */ React.createElement("div", { className: "font-mono text-[10px] text-slate-400 break-all" }, selectedElement.className && `.${selectedElement.className.split(" ").join(".")}`)), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: () => {
+          const newText = prompt("Edit Text Content:", selectedElement.innerText);
+          if (newText !== null) selectedElement.innerText = newText;
+        },
+        className: "bg-slate-700 hover:bg-slate-600 text-white py-1 rounded text-[10px]"
+      },
+      "\u270F\uFE0F Edit Text"
+    ), /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: () => {
+          selectedElement.style.display = "none";
+          setSelectedElement(null);
+        },
+        className: "bg-slate-700 hover:bg-red-600 text-white py-1 rounded text-[10px]"
+      },
+      "\u{1F441}\uFE0F Hide Element"
+    ), /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: () => {
+          const parent = selectedElement.parentElement;
+          if (parent) {
+            const clone = selectedElement.cloneNode(true);
+            parent.insertBefore(clone, selectedElement.nextSibling);
+          }
+        },
+        className: "bg-slate-700 hover:bg-green-600 text-white py-1 rounded text-[10px]"
+      },
+      "\u{1F4CB} Duplicate"
+    ), /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: () => {
+          selectedElement.remove();
+          setSelectedElement(null);
+        },
+        className: "bg-red-900/50 hover:bg-red-800 text-red-200 py-1 rounded text-[10px]"
+      },
+      "\u{1F5D1}\uFE0F Delete"
+    )), /* @__PURE__ */ React.createElement("div", { className: "bg-slate-800 p-2 rounded border border-slate-700 space-y-2" }, /* @__PURE__ */ React.createElement("h5", { className: "font-bold text-slate-400 text-[10px] uppercase" }, "Styles"), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Text Color"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-1" }, /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "color",
+        className: "w-6 h-6 bg-transparent border-0 p-0 cursor-pointer",
+        value: window.getComputedStyle(selectedElement).color,
+        onChange: (e) => selectedElement.style.color = e.target.value
+      }
+    ), /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "text",
+        placeholder: "Hex/RGB",
+        className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
+        onChange: (e) => selectedElement.style.color = e.target.value
+      }
+    ))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Background"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-1" }, /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "color",
+        className: "w-6 h-6 bg-transparent border-0 p-0 cursor-pointer",
+        onChange: (e) => selectedElement.style.backgroundColor = e.target.value
+      }
+    ), /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "text",
+        placeholder: "Hex/RGB",
+        className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
+        onChange: (e) => selectedElement.style.backgroundColor = e.target.value
+      }
+    )))), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Margin (px)"), /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "text",
+        placeholder: "e.g. 10px or 10px 20px",
+        className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
+        onChange: (e) => selectedElement.style.margin = e.target.value
+      }
+    )), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Padding (px)"), /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "text",
+        placeholder: "e.g. 10px",
+        className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
+        onChange: (e) => selectedElement.style.padding = e.target.value
+      }
+    ))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "text-[9px] text-slate-500 block" }, "Display"), /* @__PURE__ */ React.createElement(
+      "select",
+      {
+        className: "bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full",
+        onChange: (e) => selectedElement.style.display = e.target.value
+      },
+      /* @__PURE__ */ React.createElement("option", { value: "" }, "Select..."),
+      /* @__PURE__ */ React.createElement("option", { value: "block" }, "Block"),
+      /* @__PURE__ */ React.createElement("option", { value: "flex" }, "Flex"),
+      /* @__PURE__ */ React.createElement("option", { value: "grid" }, "Grid"),
+      /* @__PURE__ */ React.createElement("option", { value: "inline-block" }, "Inline Block"),
+      /* @__PURE__ */ React.createElement("option", { value: "none" }, "None")
+    ))), /* @__PURE__ */ React.createElement("div", { className: "bg-slate-800 p-2 rounded border border-slate-700" }, /* @__PURE__ */ React.createElement("label", { className: "flex items-center gap-2 cursor-pointer" }, /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "checkbox",
+        checked: dragMode,
+        onChange: (e) => {
+          setDragMode(e.target.checked);
+          if (e.target.checked) {
+            selectedElement.style.position = "relative";
+            selectedElement.style.cursor = "move";
+            let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
+            const onMouseDown = (ev) => {
+              ev.preventDefault();
+              startX = ev.clientX;
+              startY = ev.clientY;
+              initialLeft = 0;
+              initialTop = 0;
+              const onMouseMove = (mv) => {
+                const dx = mv.clientX - startX;
+                const dy = mv.clientY - startY;
+                selectedElement.style.transform = `translate(${dx}px, ${dy}px)`;
+              };
+              const onMouseUp = () => {
+                document.removeEventListener("mousemove", onMouseMove);
+                document.removeEventListener("mouseup", onMouseUp);
+              };
+              document.addEventListener("mousemove", onMouseMove);
+              document.addEventListener("mouseup", onMouseUp);
+            };
+            selectedElement.addEventListener("mousedown", onMouseDown);
+            selectedElement._dragHandler = onMouseDown;
+          } else {
+            selectedElement.style.cursor = "";
+            if (selectedElement._dragHandler) {
+              selectedElement.removeEventListener("mousedown", selectedElement._dragHandler);
+            }
+          }
+        }
+      }
+    ), /* @__PURE__ */ React.createElement("span", { className: "text-xs font-bold text-white" }, "Enable Dragging")), /* @__PURE__ */ React.createElement("p", { className: "text-[9px] text-slate-500 mt-1" }, "Note: Dragging uses `transform: translate`. It resets on refresh.")))), activeTab === "rules" && /* @__PURE__ */ React.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ React.createElement("p", { className: "text-[10px] text-slate-500 uppercase tracking-wider mb-2" }, "Active Targeted Rules"), targetedRules.length === 0 && /* @__PURE__ */ React.createElement("div", { className: "text-center text-slate-600 py-8 italic" }, "No targeted rules active."), targetedRules.map((rule, i) => /* @__PURE__ */ React.createElement("div", { key: i, className: "bg-slate-800 p-2 rounded border border-red-500/30 flex justify-between items-center" }, /* @__PURE__ */ React.createElement("div", { className: "overflow-hidden" }, /* @__PURE__ */ React.createElement("div", { className: "font-mono text-[10px] text-slate-300 truncate", title: rule.selector }, rule.selector), /* @__PURE__ */ React.createElement("div", { className: "text-[9px] text-red-400 font-bold" }, rule.property, ": ", rule.value)), /* @__PURE__ */ React.createElement("button", { onClick: () => removeTargetedRule(i), className: "text-slate-500 hover:text-white px-2" }, "\u2715")))), activeTab === "settings" && /* @__PURE__ */ React.createElement("div", { className: "space-y-4 p-2" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", { className: "font-bold text-slate-400 mb-2" }, "Theme"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-2" }, Object.keys(THEMES).map((t) => /* @__PURE__ */ React.createElement(
       "button",
       {
         key: t,

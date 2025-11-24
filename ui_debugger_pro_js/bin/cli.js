@@ -462,14 +462,89 @@ function start() {
   }
   process.chdir(projectRoot);
   
-  // 1. Inject
+  // 1. Ensure Package is Installed
+  const pmForInstall = detectPackageManager('.');
+  const pkgPath = path.join(process.cwd(), 'package.json');
+  let pkg = {};
+  try {
+    pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+  } catch (e) {}
+
+  const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+  let wasInstalledByStart = false;
+
+  if (!deps['ui-debugger-pro']) {
+    log('📦 Installing temporary dependency (ui-debugger-pro)...', 'info');
+    const installCmd = pmForInstall === 'npm' ? 'npm install ui-debugger-pro --no-save' : 
+                       pmForInstall === 'yarn' ? 'yarn add ui-debugger-pro --dev' : 
+                       'pnpm add ui-debugger-pro -D';
+    try {
+      execSync(installCmd, { stdio: 'inherit' });
+      wasInstalledByStart = true;
+      log('✅ Dependency installed.', 'success');
+    } catch (e) {
+      log('❌ Failed to install dependency. The app might crash.', 'error');
+    }
+  }
+
+  // 2. Inject
   const injected = injectCode();
   
   if (!injected) {
     log('⚠️ Could not auto-inject. Please add <UIDebugger /> manually.', 'warn');
   }
-  
-  // 2. Detect and Run Dev Server
+
+  // 3. Start Control Server (for API & Tools)
+  const http = require('http');
+  const server = http.createServer((req, res) => {
+    // CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+      res.writeHead(200);
+      res.end();
+      return;
+    }
+
+    if (req.url === '/health') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', version: '7.7.9' }));
+      return;
+    }
+
+    if (req.url === '/logs' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk.toString());
+      req.on('end', () => {
+        try {
+          const logs = JSON.parse(body);
+          const logDir = path.join(process.cwd(), 'ui-debug-logs');
+          if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
+          const logFile = path.join(logDir, `session-${Date.now()}.json`);
+          fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
+          log(`💾 Saved ${logs.length} logs to ${logFile}`, 'success');
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, path: logFile }));
+        } catch (e) {
+          res.writeHead(500);
+          res.end(JSON.stringify({ error: e.message }));
+        }
+      });
+      return;
+    }
+
+    res.writeHead(404);
+    res.end();
+  });
+
+  const PORT = 8989;
+  server.listen(PORT, () => {
+    // log(`🔌 Control Server running on port ${PORT}`, 'info');
+  });
+
+  // 4. Detect and Run Dev Server
   const devScript = detectDevCommand('.');
   
   if (!devScript) {
@@ -497,6 +572,17 @@ function start() {
     cleanedUp = true;
     log('\n🛑 Stopping and cleaning up...', 'info');
     removeCode();
+    
+    if (wasInstalledByStart) {
+      log('🗑️ Removing temporary dependency...', 'info');
+      const removeCmd = pmForInstall === 'npm' ? 'npm uninstall ui-debugger-pro' : 
+                        pmForInstall === 'yarn' ? 'yarn remove ui-debugger-pro' : 
+                        'pnpm remove ui-debugger-pro';
+      try {
+        execSync(removeCmd, { stdio: 'ignore' });
+      } catch (e) {}
+    }
+
     // Restore original directory
     try {
       process.chdir(originalCwd);

@@ -118,15 +118,21 @@ export function UIDebugger() {
   // --- State: History ---
   const [history, setHistory] = useState([]);
   const [activeTab, setActiveTab] = useState('live');
+  
+  // --- State: Design Mode ---
+  const [selectedElement, setSelectedElement] = useState(null);
+  const [dragMode, setDragMode] = useState(false);
 
   // Refs
   const isPausedRef = useRef(isPaused);
   const configRef = useRef({ trackHover, trackClick, trackFocus, trackSelect });
   const historyRef = useRef(history);
+  const activeTabRef = useRef(activeTab);
   
   useEffect(() => { isPausedRef.current = isPaused; }, [isPaused]);
   useEffect(() => { configRef.current = { trackHover, trackClick, trackFocus, trackSelect }; }, [trackHover, trackClick, trackFocus, trackSelect]);
   useEffect(() => { historyRef.current = history; }, [history]);
+  useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
 
   // --- Persistence ---
   useEffect(() => {
@@ -200,15 +206,26 @@ export function UIDebugger() {
     if (dataToUse.length === 0) return;
 
     try {
-      await fetch('/ui-debugger-pro/logs', {
+      // Try local Control Server first (JS CLI)
+      await fetch('http://localhost:8989/logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToUse)
       });
-      if (!silent) alert('Logs saved to server!');
+      if (!silent) alert('Logs saved to local session!');
     } catch (e) {
-      console.error('Failed to save logs:', e);
-      if (!silent) alert('Failed to save logs to server. Is the Python backend running?');
+      // Fallback to Python Backend if available
+      try {
+        await fetch('/ui-debugger-pro/logs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dataToUse)
+        });
+        if (!silent) alert('Logs saved to server!');
+      } catch (e2) {
+        console.error('Failed to save logs:', e2);
+        if (!silent) alert('Failed to save logs. Is the CLI running?');
+      }
     }
   }, []);
 
@@ -540,8 +557,34 @@ export function UIDebugger() {
 
   // --- Listeners ---
   useEffect(() => {
-    const handleMouseOver = (e) => configRef.current.trackHover && captureElement(e.target, 'hover');
-    const handleClick = (e) => configRef.current.trackClick && captureElement(e.target, 'click');
+    const handleMouseOver = (e) => {
+      if (activeTabRef.current === 'design') {
+        // Highlight potential selection
+        if (!e.target.closest('#ui-debugger-pro-root')) {
+           e.target.style.outline = '2px dashed #6366f1';
+           e.target.addEventListener('mouseout', () => { e.target.style.outline = ''; }, { once: true });
+        }
+        return;
+      }
+      configRef.current.trackHover && captureElement(e.target, 'hover');
+    };
+
+    const handleClick = (e) => {
+      if (activeTabRef.current === 'design') {
+        if (!e.target.closest('#ui-debugger-pro-root')) {
+           e.preventDefault();
+           e.stopPropagation();
+           setSelectedElement(e.target);
+           // Visual feedback
+           const prevOutline = e.target.style.outline;
+           e.target.style.outline = '2px solid #6366f1';
+           setTimeout(() => e.target.style.outline = prevOutline, 500);
+        }
+        return;
+      }
+      configRef.current.trackClick && captureElement(e.target, 'click');
+    };
+
     const handleFocus = (e) => configRef.current.trackFocus && captureElement(e.target, 'focus');
     const handleSelection = () => {
       if (!configRef.current.trackSelect) return;
@@ -767,7 +810,7 @@ export function UIDebugger() {
 
       {/* Tabs */}
       <div className="flex border-b border-slate-700 bg-slate-800/30 shrink-0">
-        {['live', 'suspects', 'audit', 'rules', 'settings'].map(tab => (
+        {['live', 'suspects', 'audit', 'design', 'rules', 'settings'].map(tab => (
           <button 
             key={tab}
             onClick={() => setActiveTab(tab)} 
@@ -1010,6 +1053,209 @@ export function UIDebugger() {
                <div className="w-px h-6 bg-slate-700 mx-2"></div>
                <input type="range" min="0.2" max="1.5" step="0.1" value={simScale} onChange={e => setSimScale(e.target.value)} className="w-24" title="Zoom" />
             </div>
+          </div>
+        )}
+
+        {activeTab === 'design' && (
+          <div className="space-y-4">
+            {!selectedElement ? (
+              <div className="text-center text-slate-500 py-10">
+                <p className="mb-2">👆 Click any element on the page to edit it.</p>
+                <p className="text-[10px]">You can change text, colors, spacing, and position.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {/* Header */}
+                <div className="bg-slate-800 p-2 rounded border border-indigo-500/50">
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-bold text-indigo-400 text-xs">{selectedElement.tagName.toLowerCase()}</span>
+                    <button onClick={() => setSelectedElement(null)} className="text-slate-500 hover:text-white">✕</button>
+                  </div>
+                  <div className="font-mono text-[10px] text-slate-400 break-all">
+                    {selectedElement.className && `.${selectedElement.className.split(' ').join('.')}`}
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button 
+                    onClick={() => {
+                      const newText = prompt('Edit Text Content:', selectedElement.innerText);
+                      if (newText !== null) selectedElement.innerText = newText;
+                    }}
+                    className="bg-slate-700 hover:bg-slate-600 text-white py-1 rounded text-[10px]"
+                  >
+                    ✏️ Edit Text
+                  </button>
+                  <button 
+                    onClick={() => {
+                      selectedElement.style.display = 'none';
+                      setSelectedElement(null);
+                    }}
+                    className="bg-slate-700 hover:bg-red-600 text-white py-1 rounded text-[10px]"
+                  >
+                    👁️ Hide Element
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const parent = selectedElement.parentElement;
+                      if (parent) {
+                        const clone = selectedElement.cloneNode(true);
+                        parent.insertBefore(clone, selectedElement.nextSibling);
+                      }
+                    }}
+                    className="bg-slate-700 hover:bg-green-600 text-white py-1 rounded text-[10px]"
+                  >
+                    📋 Duplicate
+                  </button>
+                  <button 
+                    onClick={() => {
+                      selectedElement.remove();
+                      setSelectedElement(null);
+                    }}
+                    className="bg-red-900/50 hover:bg-red-800 text-red-200 py-1 rounded text-[10px]"
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
+
+                {/* Style Editor */}
+                <div className="bg-slate-800 p-2 rounded border border-slate-700 space-y-2">
+                  <h5 className="font-bold text-slate-400 text-[10px] uppercase">Styles</h5>
+                  
+                  {/* Colors */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[9px] text-slate-500 block">Text Color</label>
+                      <div className="flex gap-1">
+                        <input 
+                          type="color" 
+                          className="w-6 h-6 bg-transparent border-0 p-0 cursor-pointer"
+                          value={window.getComputedStyle(selectedElement).color} // This might be RGB, input needs Hex. 
+                          // Simple hack: just let them pick, it won't sync perfectly without conversion
+                          onChange={(e) => selectedElement.style.color = e.target.value}
+                        />
+                        <input 
+                          type="text" 
+                          placeholder="Hex/RGB"
+                          className="bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full"
+                          onChange={(e) => selectedElement.style.color = e.target.value}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[9px] text-slate-500 block">Background</label>
+                      <div className="flex gap-1">
+                        <input 
+                          type="color" 
+                          className="w-6 h-6 bg-transparent border-0 p-0 cursor-pointer"
+                          onChange={(e) => selectedElement.style.backgroundColor = e.target.value}
+                        />
+                        <input 
+                          type="text" 
+                          placeholder="Hex/RGB"
+                          className="bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full"
+                          onChange={(e) => selectedElement.style.backgroundColor = e.target.value}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Spacing */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[9px] text-slate-500 block">Margin (px)</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. 10px or 10px 20px"
+                        className="bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full"
+                        onChange={(e) => selectedElement.style.margin = e.target.value}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] text-slate-500 block">Padding (px)</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. 10px"
+                        className="bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full"
+                        onChange={(e) => selectedElement.style.padding = e.target.value}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Layout */}
+                  <div>
+                     <label className="text-[9px] text-slate-500 block">Display</label>
+                     <select 
+                       className="bg-slate-900 border border-slate-600 rounded px-1 text-[10px] w-full"
+                       onChange={(e) => selectedElement.style.display = e.target.value}
+                     >
+                       <option value="">Select...</option>
+                       <option value="block">Block</option>
+                       <option value="flex">Flex</option>
+                       <option value="grid">Grid</option>
+                       <option value="inline-block">Inline Block</option>
+                       <option value="none">None</option>
+                     </select>
+                  </div>
+                </div>
+
+                {/* Drag Mode */}
+                <div className="bg-slate-800 p-2 rounded border border-slate-700">
+                   <label className="flex items-center gap-2 cursor-pointer">
+                     <input 
+                       type="checkbox" 
+                       checked={dragMode}
+                       onChange={(e) => {
+                         setDragMode(e.target.checked);
+                         if (e.target.checked) {
+                           selectedElement.style.position = 'relative';
+                           selectedElement.style.cursor = 'move';
+                           
+                           // Simple Drag Logic
+                           let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
+                           
+                           const onMouseDown = (ev) => {
+                             ev.preventDefault();
+                             startX = ev.clientX;
+                             startY = ev.clientY;
+                             // Parse current transform or left/top
+                             // For simplicity, we use transform translate
+                             initialLeft = 0; initialTop = 0; // Reset for relative
+                             
+                             const onMouseMove = (mv) => {
+                               const dx = mv.clientX - startX;
+                               const dy = mv.clientY - startY;
+                               selectedElement.style.transform = `translate(${dx}px, ${dy}px)`;
+                             };
+                             
+                             const onMouseUp = () => {
+                               document.removeEventListener('mousemove', onMouseMove);
+                               document.removeEventListener('mouseup', onMouseUp);
+                             };
+                             
+                             document.addEventListener('mousemove', onMouseMove);
+                             document.addEventListener('mouseup', onMouseUp);
+                           };
+                           
+                           selectedElement.addEventListener('mousedown', onMouseDown);
+                           (selectedElement as any)._dragHandler = onMouseDown; // Store to remove later
+                         } else {
+                           selectedElement.style.cursor = '';
+                           if ((selectedElement as any)._dragHandler) {
+                             selectedElement.removeEventListener('mousedown', (selectedElement as any)._dragHandler);
+                           }
+                         }
+                       }}
+                     />
+                     <span className="text-xs font-bold text-white">Enable Dragging</span>
+                   </label>
+                   <p className="text-[9px] text-slate-500 mt-1">
+                     Note: Dragging uses `transform: translate`. It resets on refresh.
+                   </p>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
