@@ -1,8 +1,8 @@
-# Installation Guide: Python (Flask, Django, FastAPI)
+# Installation Guide: Python (Django, Flask, FastAPI)
 
 UI Debugger Pro provides a Python package that acts as middleware. It injects the debugger UI into your HTML templates automatically.
 
-## 🐍 PIP Installation
+## 🐍 Installation
 
 ```bash
 pip install ui-debugger-pro
@@ -10,30 +10,51 @@ pip install ui-debugger-pro
 
 ---
 
-## ⚡ Zero-Config Setup (Recommended)
+## ⚡ Universal Zero-Config (Recommended)
 
-The fastest way to run your Python app with the debugger:
+**One command works for ANY Python web framework:**
 
 ```bash
-# Install the package
+# Install once
 pip install ui-debugger-pro
 
-# Run your app with the debugger (auto-cleans up on exit)
-ui-debugger run -- python manage.py runserver
-# or for Flask:
-ui-debugger run -- python app.py
+# Run anywhere - auto-detects everything!
+ui-debugger start
 ```
 
-This command will:
-1. Temporarily inject the middleware into your Django settings or Flask app
-2. Run your development server
-3. Auto-remove the middleware code when you stop the server (Ctrl+C)
+**What it does:**
+- 🔍 **Auto-detects** your framework (Django, Flask, FastAPI)
+- 📁 **Finds project files** (`manage.py`, `app.py`, `main.py`, even in src/)
+- 💉 **Injects middleware** temporarily
+- 🚀 **Runs your dev server** automatically
+- 🧹 **Auto-removes** everything when you press Ctrl+C
 
-**No code changes needed!** Perfect for quick debugging sessions.
+**Supports:**
+- ✅ Django (finds manage.py and settings.py automatically)
+- ✅ Flask (detects app.py anywhere)
+- ✅ FastAPI (finds main.py with ASGI middleware)
+- ✅ PHP & Ruby (via proxy server)
+- ✅ Static HTML (via proxy server)
+
+**No configuration, no code changes, just works!**
+
+**Examples:**
+```bash
+# All of these are automatic - just run:
+ui-debugger start
+
+# The CLI will detect and run:
+# - Django: python manage.py runserver
+# - Flask: python app.py
+# - FastAPI: uvicorn main:app --reload
+# - PHP: php -S localhost:8000 (via proxy on :8001)
+```
 
 ---
 
 ## 🌶️ Flask (Manual Setup)
+
+If you prefer permanent installation in your code:
 
 In your main application file (e.g., `app.py`):
 

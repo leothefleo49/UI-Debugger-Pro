@@ -4,30 +4,64 @@
 
 UI Debugger Pro is a universal tool designed to help developers find and fix visual bugs, layout issues, and responsiveness problems. It works with **React, Next.js, Vue, Svelte, Python (Flask/Django), PHP, Ruby, and static HTML**.
 
-## 🚀 Quick Start
+## 🚀 Quick Start - One Universal Command!
 
-### Choose Your Environment
+**Works with ANY project type - React, Next.js, Vue, Python, PHP, Ruby, and more!**
 
-| Environment | Zero-Config Setup | Installation Guide |
+```bash
+# For JavaScript/Node.js projects
+npx ui-debugger-pro start
+
+# For Python/other projects  
+ui-debugger start
+```
+
+That's it! The CLI auto-detects your project type, finds entry points, and runs your dev server with the debugger attached. Press **Ctrl+C** to stop and automatically clean up.
+
+### Installation
+
+**JavaScript/Node.js Projects:**
+```bash
+npm install ui-debugger-pro
+# or
+yarn add ui-debugger-pro
+# or
+pnpm add ui-debugger-pro
+```
+
+**Python Projects:**
+```bash
+pip install ui-debugger-pro
+```
+
+**Other Methods:**
+
+| Method | Best For | Link |
 | :--- | :--- | :--- |
-| **React / Next.js / Vite** | `npm i ui-debugger-pro && npx ui-debugger-pro start` | [**Read Guide**](./docs/INSTALL_REACT.md) |
-| **Python (Flask / Django)** | `pip install ui-debugger-pro && ui-debugger run -- python manage.py runserver` | [**Read Guide**](./docs/INSTALL_PYTHON.md) |
-| **HTML / PHP / Ruby** | Add `<script>` tag | [**Read Guide**](./docs/INSTALL_VANILLA.md) |
-| **Browser Extension** | Chrome / Edge / Opera | [**Read Guide**](./docs/INSTALL_EXTENSION.md) |
-| **Any Website (No Code)** | Bookmarklet (Drag & Drop) | [**Get Bookmarklet**](./docs/bookmarklet_install.html) |
+| **Browser Extension** | Any website (no code changes) | [**Install Extension**](./docs/INSTALL_EXTENSION.md) |
+| **Bookmarklet** | Quick testing on any site | [**Get Bookmarklet**](./docs/bookmarklet_install.html) |
+| **Manual Setup** | Full control | [**Installation Guides**](./docs/WHICH_METHOD.md) |
 
-> **😕 Not sure which one to pick?**
+> **😕 Not sure which method to use?**
 > [**Click here for a simple guide**](./docs/WHICH_METHOD.md) to find the perfect installation method for your specific project.
 
 ---
 
-## ✨ Features (v7.5)
+## ✨ Features (v7.6)
 
-### 🔌 Zero-Config Installation
-- **Automatic Setup**: Run `npx ui-debugger-pro start` or `ui-debugger run` to instantly add the debugger to any project.
-- **Auto-Cleanup**: Press Ctrl+C and all injected code is automatically removed.
-- **Plugin Support**: Persistent zero-config via Vite, Next.js, and Webpack plugins.
-- **Universal**: Works with React, Vue, Django, Flask, FastAPI, PHP, Ruby, and static HTML.
+### 🎯 Universal Zero-Config
+- **One Command, Any Project**: `npx ui-debugger-pro start` or `ui-debugger start` works everywhere
+- **Smart Auto-Detection**: Automatically detects React, Next.js, Vue, Django, Flask, FastAPI, PHP, Ruby, and static HTML
+- **Recursive File Search**: Finds entry points anywhere in your project structure (src/, app/, App/, pages/, public/, etc.)
+- **Smart Script Detection**: Auto-detects dev commands from package.json (dev, start, serve, etc.)
+- **Auto-Cleanup**: Press Ctrl+C and all injected code is automatically removed
+- **Zero Configuration**: No config files, no setup, just works
+
+### 🔌 Plugin Support (Optional)
+For persistent installation without runtime injection:
+- **Vite Plugin**: `import { uiDebuggerPlugin } from 'ui-debugger-pro/plugin'`
+- **Next.js Plugin**: `const withUIDebugger = require('ui-debugger-pro/next')`
+- **Webpack Plugin**: `const UIDebuggerPlugin = require('ui-debugger-pro/webpack')`
 
 ### 🤖 Auto-Fix & History
 - **Auto-Fix**: Click a button to automatically apply CSS fixes for overlaps, cutoffs, and contrast issues.
@@ -67,26 +101,37 @@ Automated chaos testing for your UI. Clicks random buttons to find broken paths.
 
 ## 💻 CLI Commands
 
-### JavaScript/NPM Commands
+### Universal Commands (Work Everywhere!)
 
 | Command | Description |
 | :--- | :--- |
-| `npx ui-debugger-pro start` | **Zero-Config:** Run your app with debugger injected. Auto-removes on exit (Ctrl+C). |
-| `npx ui-debugger-pro init` | Install and permanently configure the debugger in your project. |
-| `npx ui-debugger-pro remove` | Uninstall the package and remove all injected code. |
-| `npx ui-debugger-pro help` | Open the documentation in your browser. |
-| `npx ui-debugger-pro commands` | List all available commands. |
+| `npx ui-debugger-pro start` | **JavaScript projects:** Auto-detect and run with debugger |
+| `ui-debugger start` | **Python/PHP/Ruby projects:** Auto-detect and run with debugger |
 
-### Python/PIP Commands
+**Both commands:**
+- ✅ Auto-detect project type (React, Next.js, Vue, Django, Flask, FastAPI, PHP, Ruby, HTML)
+- ✅ Find entry files recursively in any directory structure
+- ✅ Detect and run your dev command automatically
+- ✅ Auto-cleanup on exit (Ctrl+C)
+
+### Additional JavaScript Commands
 
 | Command | Description |
 | :--- | :--- |
-| `ui-debugger run -- <your command>` | **Zero-Config:** Run your Python app with debugger injected. Auto-removes on exit. |
-| `ui-debugger enable` | Enable the debugger in your config. |
-| `ui-debugger disable` | Disable the debugger without uninstalling. |
-| `ui-debugger clean` | Clean up old debug logs. |
+| `npx ui-debugger-pro init` | Permanently add debugger to your project |
+| `npx ui-debugger-pro remove` | Uninstall and remove all traces |
+| `npx ui-debugger-pro help` | Open documentation |
+| `npx ui-debugger-pro commands` | List all commands |
 
-> *Tip: You can also access help directly inside the UI by clicking the **❓ HELP** button.*
+### Additional Python Commands
+
+| Command | Description |
+| :--- | :--- |
+| `ui-debugger enable` | Enable debugger in config |
+| `ui-debugger disable` | Disable without uninstalling |
+| `ui-debugger clean` | Clean up debug logs |
+
+> **Legacy:** `ui-debugger run -- <command>` still works but `start` is recommended.
 
 ---
 
@@ -98,6 +143,17 @@ This is a monorepo containing both the Python and JavaScript packages.
 - `ui_debugger_pro_js/`: NPM package source.
 - `ui_debugger_pro_ext/`: Browser Extension source.
 
+---
+
+## 📥 Quick Install Guide
+
+Download the README for easy sharing:
+- **Direct download:** [UI-Debugger-Pro-README.md](https://github.com/leothefleo49/UI-Debugger-Pro/releases/download/readme-latest/UI-Debugger-Pro-README.md)
+- **Download page:** [docs/download_readme.html](./docs/download_readme.html)
+- **Raw file:** [README.md](https://raw.githubusercontent.com/leothefleo49/UI-Debugger-Pro/main/README.md)
+
+---
+
 ## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/leothefleo49/Solar-Panel-Calculator/issues)
@@ -107,31 +163,14 @@ This is a monorepo containing both the Python and JavaScript packages.
 
 ---
 
-## 💖 Sponsor
+## 💖 Sponsors
 
-If you find this project useful, consider supporting continued development on GitHub Sponsors:
+If you find this project useful, consider supporting continued development:
 
-- **Sponsor:** https://github.com/sponsors/leothefleo49
+- **GitHub Sponsors:** https://github.com/sponsors/leothefleo49
 
-Donations are not required but are very much appreciated — they help cover maintenance, hosting, and adding new features.
+Donations help cover maintenance, hosting, and new features. Not required but very much appreciated!
 
 Made with ❤️ by [leothefleo49](https://github.com/leothefleo49)
-
----
-
-## 📥 Direct README Download
-
-If you want one guaranteed download of the README to share, use the release-asset link below. The repository contains a GitHub Action that publishes `README.md` as a release asset named `UI-Debugger-Pro-README.md` whenever you push to `main` or `master`.
-
-- Direct download (one click):
-	- https://github.com/leothefleo49/UI-Debugger-Pro/releases/download/readme-latest/UI-Debugger-Pro-README.md
-
-If you'd rather use a small page that forces a download (works in more browsers), open:
-
-- Download helper page: `docs/download_readme.html`
-
-Fallback (opens in browser; right-click → Save as):
-
-- Raw README: `https://raw.githubusercontent.com/leothefleo49/UI-Debugger-Pro/main/README.md`
 
 

@@ -27,19 +27,127 @@ function detectPackageManager() {
   return 'npm';
 }
 
+function recursiveFindFiles(dir, patterns, maxDepth = 5, currentDepth = 0) {
+  if (currentDepth > maxDepth) return [];
+  
+  let results = [];
+  try {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      // Skip node_modules, .git, dist, build
+      if (['node_modules', '.git', 'dist', 'build', '.next', 'out'].includes(entry.name)) {
+        continue;
+      }
+      
+      const fullPath = path.join(dir, entry.name);
+      
+      if (entry.isDirectory()) {
+        results = results.concat(recursiveFindFiles(fullPath, patterns, maxDepth, currentDepth + 1));
+      } else if (entry.isFile()) {
+        for (const pattern of patterns) {
+          if (entry.name === pattern || entry.name.match(pattern)) {
+            results.push(fullPath);
+          }
+        }
+      }
+    }
+  } catch (e) {
+    // Skip directories we can't read
+  }
+  
+  return results;
+}
+
 function findEntryFile() {
+  // Priority order for entry files
   const candidates = [
-    'app/layout.tsx', 'app/layout.js', // Next.js App Router
-    'pages/_app.tsx', 'pages/_app.js', // Next.js Pages Router
-    'src/main.tsx', 'src/main.js',     // Vite
-    'src/index.tsx', 'src/index.js',   // CRA / Webpack
-    'index.html', 'index.php'          // Static HTML / PHP
+    // Next.js patterns
+    { pattern: 'layout.tsx', priority: 10, type: 'nextjs-app' },
+    { pattern: 'layout.js', priority: 10, type: 'nextjs-app' },
+    { pattern: '_app.tsx', priority: 9, type: 'nextjs-pages' },
+    { pattern: '_app.js', priority: 9, type: 'nextjs-pages' },
+    
+    // React patterns (Vite, CRA, Webpack)
+    { pattern: /^main\.(tsx|ts|jsx|js)$/, priority: 8, type: 'vite' },
+    { pattern: /^index\.(tsx|ts|jsx|js)$/, priority: 7, type: 'react' },
+    { pattern: /^App\.(tsx|ts|jsx|js)$/, priority: 6, type: 'react' },
+    
+    // Vue patterns
+    { pattern: /^main\.(ts|js)$/, priority: 5, type: 'vue' },
+    { pattern: /^App\.vue$/, priority: 5, type: 'vue' },
+    
+    // Angular patterns
+    { pattern: /^main\.ts$/, priority: 4, type: 'angular' },
+    
+    // Static HTML/PHP
+    { pattern: /^index\.html$/, priority: 3, type: 'html' },
+    { pattern: /^index\.php$/, priority: 2, type: 'php' },
   ];
   
-  for (const file of candidates) {
-    if (fs.existsSync(file)) return file;
+  log('🔍 Scanning project structure...', 'info');
+  
+  // Search recursively
+  for (const candidate of candidates) {
+    const files = recursiveFindFiles('.', [candidate.pattern], 4);
+    
+    if (files.length > 0) {
+      // Prefer files in src/, app/, or root
+      const sorted = files.sort((a, b) => {
+        const aDepth = a.split(path.sep).length;
+        const bDepth = b.split(path.sep).length;
+        const aInSrc = a.includes('src') || a.includes('app') || a.includes('App');
+        const bInSrc = b.includes('src') || b.includes('app') || b.includes('App');
+        
+        if (aInSrc && !bInSrc) return -1;
+        if (!aInSrc && bInSrc) return 1;
+        return aDepth - bDepth;
+      });
+      
+      const selectedFile = sorted[0];
+      log(`✅ Detected ${candidate.type} project: ${selectedFile}`, 'success');
+      return { file: selectedFile, type: candidate.type };
+    }
   }
+  
   return null;
+}
+
+function detectDevCommand() {
+  // Check if package.json exists
+  if (!fs.existsSync('package.json')) {
+    return null;
+  }
+  
+  try {
+    const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    const scripts = pkg.scripts || {};
+    
+    // Priority order for dev commands
+    const devScripts = ['dev', 'start', 'serve', 'vite', 'next dev', 'ng serve', 'vue-cli-service serve'];
+    
+    for (const scriptName of devScripts) {
+      if (scripts[scriptName]) {
+        log(`✅ Detected dev script: ${scriptName}`, 'success');
+        return scriptName;
+      }
+    }
+    
+    // If no standard script found, check for any script with 'dev' or 'start' in the name
+    const scriptNames = Object.keys(scripts);
+    const devScript = scriptNames.find(name => name.includes('dev') || name.includes('start'));
+    
+    if (devScript) {
+      log(`✅ Detected dev script: ${devScript}`, 'success');
+      return devScript;
+    }
+    
+    log('⚠️ No dev script found in package.json', 'warn');
+    return null;
+  } catch (e) {
+    log('⚠️ Could not parse package.json', 'warn');
+    return null;
+  }
 }
 
 function injectIntoHTML(file) {
@@ -96,91 +204,114 @@ function install() {
 }
 
 function injectCode() {
-  const file = findEntryFile();
-  if (!file) {
-    log('⚠️ Could not automatically find entry file (app/layout.tsx, pages/_app.tsx, src/main.tsx, index.html).', 'warn');
-    log('Please manually add the following to your root component:', 'info');
-    log(`1. ${IMPORT_STATEMENT}`);
-    log(`2. ${COMPONENT_TAG}`);
-    return;
+  const result = findEntryFile();
+  
+  if (!result) {
+    log('⚠️ Could not automatically find entry file in your project.', 'warn');
+    log('💡 Please manually add to your root component:', 'info');
+    log(`   1. ${IMPORT_STATEMENT}`, 'info');
+    log(`   2. ${COMPONENT_TAG}`, 'info');
+    return false;
   }
 
-  // Check if it's an HTML file
-  if (file.endsWith('.html') || file.endsWith('.php')) {
+  const { file, type } = result;
+
+  // Check if it's an HTML/PHP file
+  if (type === 'html' || type === 'php') {
     return injectIntoHTML(file);
   }
 
-  log(`📝 Modifying ${file}...`, 'info');
+  log(`📝 Injecting into ${file}...`, 'info');
   let content = fs.readFileSync(file, 'utf8');
 
   if (content.includes('ui-debugger-pro')) {
-    log('⚠️ UI Debugger seems to be already installed in this file.', 'warn');
-    return;
+    log('✅ UI Debugger already present in this file', 'success');
+    return true;
   }
 
   // Inject Import
   if (content.includes('import')) {
-    content = IMPORT_STATEMENT + '\n' + content;
+    // Add after the first import block
+    const lines = content.split('\n');
+    let lastImportIndex = 0;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].trim().startsWith('import')) {
+        lastImportIndex = i;
+      }
+    }
+    lines.splice(lastImportIndex + 1, 0, IMPORT_STATEMENT);
+    content = lines.join('\n');
   } else {
     content = IMPORT_STATEMENT + '\n' + content;
   }
 
-  // Inject Component
-  // Strategy: Look for <body> (Next.js App) or return ( (React)
-  if (file.includes('layout')) {
-    // Next.js App Router: Insert before </body> or children
+  // Inject Component based on detected type
+  if (type === 'nextjs-app') {
+    // Next.js App Router: Insert before </body> or after {children}
     if (content.includes('</body>')) {
       content = content.replace('</body>', `  ${COMPONENT_TAG}\n      </body>`);
     } else if (content.includes('{children}')) {
       content = content.replace('{children}', `{children}\n        ${COMPONENT_TAG}`);
     }
-  } else if (file.includes('_app')) {
+  } else if (type === 'nextjs-pages') {
     // Next.js Pages Router: Insert after <Component ... />
-    // Usually inside return ( ... )
-    // This is hard to regex safely, so we append to fragment or div
     if (content.includes('<Component')) {
-      content = content.replace(/<Component\s+\{\.\.\.pageProps\}\s*\/?>/, `$& \n      ${COMPONENT_TAG}`);
-      // If it was self-closing and not wrapped, this might break if not in a fragment.
-      // Warn user to check.
-      log('⚠️ Injected into _app.js. Please verify the syntax (ensure it is wrapped in a Fragment <>...</> if needed).', 'warn');
+      content = content.replace(/<Component\s+\{\.\.\.pageProps\}\s*\/?>/, `$&\n      ${COMPONENT_TAG}`);
     }
-  } else {
-    // Vite/CRA: Usually root.render(<App />) or <React.StrictMode>
-    if (content.includes('<App />')) {
+  } else if (type === 'vite' || type === 'react') {
+    // Vite/CRA: Usually root.render(<App />) or <StrictMode><App /></StrictMode>
+    if (content.includes('<App />') && !content.includes('<App />\n')) {
       content = content.replace('<App />', `<>\n    <App />\n    ${COMPONENT_TAG}\n  </>`);
     } else if (content.includes('<App/>')) {
       content = content.replace('<App/>', `<>\n    <App/>\n    ${COMPONENT_TAG}\n  </>`);
+    } else if (content.includes('</StrictMode>')) {
+      content = content.replace('</StrictMode>', `  ${COMPONENT_TAG}\n  </StrictMode>`);
     }
+  } else if (type === 'vue') {
+    // Vue: Add to App.vue template or main.ts with global component
+    log('⚠️ Vue detected. Please add <UIDebugger /> to your App.vue template', 'warn');
+    return false;
+  } else if (type === 'angular') {
+    // Angular: Add to app.component.html
+    log('⚠️ Angular detected. Please add <ui-debugger></ui-debugger> to your app.component.html', 'warn');
+    return false;
   }
 
   fs.writeFileSync(file, content);
-  log(`✅ Successfully injected UI Debugger into ${file}`, 'success');
+  log(`✅ Successfully injected into ${file}`, 'success');
+  return true;
 }
 
 function removeCode() {
-  const file = findEntryFile();
-  if (file) {
-    let content = fs.readFileSync(file, 'utf8');
-    if (content.includes('ui-debugger-pro')) {
-      // For HTML files, remove CDN scripts
-      if (file.endsWith('.html') || file.endsWith('.php')) {
-        // Remove the entire script block we added
-        content = content.replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/ui-debugger-pro@latest\/dist\/index\.global\.js"><\/script>/g, '');
-        content = content.replace(/<script>[\s\S]*?if \(window\.UIDebuggerPro[\s\S]*?<\/script>/g, '');
-      } else {
-        // For JS/TS files, remove imports and components
-        content = content.replace(IMPORT_STATEMENT + '\n', '');
-        content = content.replace(IMPORT_STATEMENT, '');
-        content = content.replace(COMPONENT_TAG, '');
-        
-        // Attempt to clean up fragments if we added them
-        content = content.replace('<>\n    <App />\n    \n  </>', '<App />');
-        content = content.replace('<>\n    <App/>\n    \n  </>', '<App/>');
-      }
-
-      fs.writeFileSync(file, content);
-      log(`✅ Removed code from ${file}`, 'success');
+  const result = findEntryFile();
+  if (!result) {
+    log('⚠️ Could not find entry file to clean up', 'warn');
+    return;
+  }
+  
+  const { file } = result;
+  
+  let content = fs.readFileSync(file, 'utf8');
+  if (content.includes('ui-debugger-pro')) {
+    // For HTML files, remove CDN scripts
+    if (file.endsWith('.html') || file.endsWith('.php')) {
+      content = content.replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/ui-debugger-pro@latest\/dist\/index\.global\.js"><\/script>/g, '');
+      content = content.replace(/<script>[\s\S]*?if \(window\.UIDebuggerPro[\s\S]*?<\/script>/g, '');
+    } else {
+      // For JS/TS files, remove imports and components
+      content = content.replace(new RegExp(IMPORT_STATEMENT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\n?', 'g'), '');
+      content = content.replace(new RegExp(COMPONENT_TAG.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '');
+      
+      // Clean up fragments if we added them
+      content = content.replace('<>\n    <App />\n    \n  </>', '<App />');
+      content = content.replace('<>\n    <App/>\n    \n  </>', '<App/>');
+      
+      // Remove empty lines that might have been created
+      content = content.replace(/\n\n\n+/g, '\n\n');
     }
+
+    fs.writeFileSync(file, content);
+    log(`✅ Cleaned up ${file}`, 'success');
   }
 }
 
@@ -204,18 +335,32 @@ function remove() {
 }
 
 function start() {
-  log('🚀 Starting UI Debugger Pro in Zero-Config Mode...', 'info');
+  log('🚀 Starting UI Debugger Pro - Universal Zero-Config Mode...', 'info');
+  log('🔎 Auto-detecting project type and configuration...', 'info');
   
   // 1. Inject
-  injectCode();
+  const injected = injectCode();
   
-  // 2. Run Dev Server
+  if (!injected) {
+    log('⚠️ Could not auto-inject. Please add <UIDebugger /> manually.', 'warn');
+  }
+  
+  // 2. Detect and Run Dev Server
+  const devScript = detectDevCommand();
+  
+  if (!devScript) {
+    log('❌ Could not detect dev command. Please run your dev server manually.', 'error');
+    log('💡 Add a "dev" or "start" script to your package.json', 'info');
+    return;
+  }
+  
   const pm = detectPackageManager();
-  const runCmd = pm === 'npm' ? 'npm run dev' : 
-                 pm === 'yarn' ? 'yarn dev' : 'pnpm dev';
+  const runCmd = pm === 'npm' ? `npm run ${devScript}` : 
+                 pm === 'yarn' ? `yarn ${devScript}` : 
+                 `pnpm ${devScript}`;
                  
-  log(`▶️  Running ${runCmd}...`, 'info');
-  log('⚠️  Press Ctrl+C to stop the server and remove the debugger.', 'warn');
+  log(`▶️  Running: ${runCmd}`, 'info');
+  log('⚠️  Press Ctrl+C to stop and auto-cleanup', 'warn');
   
   const child = require('child_process').spawn(runCmd, { 
     shell: true, 
@@ -233,7 +378,6 @@ function start() {
   
   process.on('SIGINT', cleanup);
   process.on('SIGTERM', cleanup);
-  // process.on('exit', cleanup); // Avoid double cleanup on normal exit
   
   child.on('exit', (code) => {
     cleanup();

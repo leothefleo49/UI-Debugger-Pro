@@ -1,27 +1,37 @@
-# Installation Guide: React, Next.js, & Vite
+# Installation Guide: React, Next.js, Vite, Vue & More
 
-## ⚡ Zero-Config Setup (Recommended)
+## ⚡ Universal Zero-Config (Recommended)
 
-The fastest way to use UI Debugger Pro without touching your code:
+**One command works for ANY JavaScript project:**
 
 ```bash
-# Install the package
+# Install once
 npm install ui-debugger-pro
 
-# Run your app with the debugger (auto-cleans up on exit)
+# Run anywhere - auto-detects everything!
 npx ui-debugger-pro start
 ```
 
-This command will:
-1. Temporarily inject the debugger into your app
-2. Start your dev server
-3. Auto-remove the debugger code when you stop the server (Ctrl+C)
+**What it does:**
+- 🔍 **Auto-detects** your project type (React, Next.js, Vite, Vue, Angular, etc.)
+- 📁 **Finds entry files** anywhere in your project (src/, app/, App/, pages/, etc.)
+- 🚀 **Detects dev command** from package.json (dev, start, serve, etc.)
+- 💉 **Injects debugger** temporarily
+- 🧹 **Auto-removes** everything when you press Ctrl+C
 
-**No code changes needed!** Perfect for quick debugging sessions.
+**Supports:**
+- ✅ React (Create React App, Vite, Webpack)
+- ✅ Next.js (App Router & Pages Router)
+- ✅ Vue 2 & 3
+- ✅ Angular
+- ✅ Svelte
+- ✅ Any framework with a dev server!
+
+**No configuration, no code changes, just works!**
 
 ---
 
-## 🔌 Plugin-Based Setup (Zero Code Changes)
+## 🔌 Plugin-Based Setup (Persistent)
 
 For a persistent zero-config setup, use our plugins:
 

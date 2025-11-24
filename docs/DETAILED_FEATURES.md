@@ -1,36 +1,54 @@
 # Detailed Feature Documentation
 
-This document provides an in-depth explanation of every feature available in **UI Debugger Pro v7.5**.
+This document provides an in-depth explanation of every feature available in **UI Debugger Pro v7.6**.
 
 ---
 
-## 🔌 Zero-Config Installation (NEW in v7.5)
+## 🎯 Universal Zero-Config (NEW in v7.6)
 
-UI Debugger Pro now features automatic setup and teardown, making it easier than ever to debug your applications without modifying your source code.
+UI Debugger Pro features a truly universal CLI that works with **any** project type using a single command.
 
-### 1. Automatic Code Injection
-*   **What it does**: Automatically detects your project type and injects the debugger without requiring manual code changes.
-*   **Supported**: React, Next.js, Vite, Django, Flask, FastAPI, PHP, Ruby, and static HTML.
-*   **Commands**:
-    *   JavaScript: `npx ui-debugger-pro start`
-    *   Python: `ui-debugger run -- <your command>`
-*   **Benefit**: Start debugging in seconds without editing `App.tsx`, `settings.py`, or HTML files.
+### 1. One Command for Everything
+*   **Command**: `npx ui-debugger-pro start` (Node.js projects) or `ui-debugger start` (Python/other projects)
+*   **Works with**: React, Next.js, Vue, Angular, Svelte, Django, Flask, FastAPI, PHP, Ruby, static HTML, and more
+*   **No configuration needed**: The CLI intelligently detects your project type, entry points, and dev commands
+*   **Benefit**: Start debugging in **any** project within seconds
 
-### 2. Auto-Cleanup on Exit
-*   **What it does**: When you press Ctrl+C to stop your dev server, all injected code is automatically removed.
-*   **Why use it**: Ensures your codebase stays clean and production-ready. No risk of accidentally committing debug code.
+### 2. Intelligent Auto-Detection
+*   **Project Type Detection**: Automatically identifies your framework by scanning files
+    *   React/Vite: Looks for `main.tsx`, `index.tsx` in src/
+    *   Next.js: Detects `layout.tsx` (App Router) or `_app.tsx` (Pages Router)
+    *   Django: Finds `manage.py` and `settings.py`
+    *   Flask: Locates `app.py` with Flask imports
+    *   FastAPI: Detects `main.py` with FastAPI
+    *   Vue: Finds `App.vue` and `main.ts`
+    *   PHP/HTML: Looks for `index.php` or `index.html`
 
-### 3. Plugin-Based Persistence
-For projects where you want the debugger permanently available during development:
-*   **Vite Plugin**: Add `uiDebuggerPlugin()` to `vite.config.ts`
-*   **Next.js Plugin**: Wrap your config with `withUIDebugger()`
-*   **Webpack Plugin**: Add `new UIDebuggerWebpackPlugin()` to your webpack config
-*   **Benefit**: Zero-config that persists across restarts without manual code injection.
+*   **Recursive File Search**: Scans your entire project structure (up to 4 levels deep)
+    *   Finds entry files in `src/`, `app/`, `App/`, `pages/`, `public/`, or any subdirectory
+    *   Skips `node_modules`, `.git`, `dist`, `build` for performance
 
-### 4. Universal Proxy Server
-*   **What it does**: For PHP, Ruby, and static HTML sites, the CLI starts a proxy server that automatically injects the debugger into all HTML responses.
-*   **Usage**: `ui-debugger run -- php -S localhost:8000`
-*   **Access**: Visit `localhost:8001` (proxy port) to see your site with the debugger enabled.
+*   **Smart Script Detection**: Parses `package.json` to find your dev command
+    *   Priority order: `dev`, `start`, `serve`, `vite`, `next dev`, `ng serve`, `vue-cli-service serve`
+    *   Falls back to any script with "dev" or "start" in the name
+
+### 3. Auto-Cleanup on Exit
+*   **What it does**: Press Ctrl+C to stop your server and all injected code is automatically removed
+*   **Tracks changes**: Stores original file content and restores it exactly
+*   **Why use it**: Zero risk of accidentally committing debug code to production
+
+### 4. Plugin-Based Persistence (Optional)
+For projects where you want the debugger permanently available:
+*   **Vite Plugin**: `import { uiDebuggerPlugin } from 'ui-debugger-pro/plugin'`
+*   **Next.js Plugin**: `const withUIDebugger = require('ui-debugger-pro/next')`
+*   **Webpack Plugin**: `const UIDebuggerPlugin = require('ui-debugger-pro/webpack')`
+*   **Benefit**: Persistent zero-config that survives restarts
+
+### 5. Universal Proxy Server
+*   **For**: PHP, Ruby, and static HTML projects without Node.js
+*   **What it does**: Starts a proxy server that injects the debugger into all HTML responses
+*   **Usage**: `ui-debugger start` (auto-detects and starts proxy on port 8001)
+*   **Access**: Visit `localhost:8001` to see your site with the debugger
 
 ---
 
