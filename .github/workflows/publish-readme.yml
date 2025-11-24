@@ -15,8 +15,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Create or update release (readme-latest)
-        id: create_release
+      - name: Create or update release with README asset
         uses: ncipollo/release-action@v1
         with:
           tag: readme-latest
@@ -25,13 +24,7 @@ jobs:
           draft: false
           prerelease: false
           allowUpdates: true
-
-      - name: Upload README.md as asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./README.md
-          asset_name: UI-Debugger-Pro-README.md
-          asset_content_type: text/markdown
+          artifacts: "README.md"
+          artifactContentType: "text/markdown"
+          makeLatest: false
+          token: ${{ secrets.GITHUB_TOKEN }}
